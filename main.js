@@ -1,13 +1,13 @@
 /* ============================================================
    PARA Hub — Complete Obsidian plugin
-   Version 1.0.0 — Stable Release (Future-Proof Migration System)
+   Version 1.0.3 — Stability & safety release
    ============================================================ */
 
 const { Plugin, ItemView, Modal, Setting, PluginSettingTab, Notice, normalizePath, setIcon, Menu } = require('obsidian');
 
 const VIEW_TYPE = 'para-hub-view';
 const MAX_RENDER = 100;
-const CURRENT_SCHEMA_VERSION = 1; // Increase this if you change how data is saved in the future
+const CURRENT_SCHEMA_VERSION = 1;
 
 const DEFAULT_FOLDERS = {
   inbox: 'Inbox',
@@ -33,6 +33,7 @@ const TRANSLATIONS = {
     panel_summary: 'Progress summary', sum_tasks: 'Tasks completed:', sum_proj: 'Active projects:', sum_inbox: 'Items waiting in Inbox:',
     btn_add_task: 'Add Task', btn_capture: 'Quick Capture', btn_new_proj: 'New Project', btn_new_area: 'New Area', btn_new_res: 'New Resource', btn_back: 'Back',
     btn_open: 'Open', btn_edit: 'Edit', btn_archive: 'Archive', btn_restore: 'Restore', btn_assign: 'Assign', btn_more: 'More options', btn_actions: 'Actions', btn_go: 'Go', btn_reset: 'Reset progress',
+    btn_delete: 'Delete', mod_del_title: 'Delete Permanently', mod_del_desc: 'Are you sure you want to delete this item? This action cannot be undone.', btn_confirm_del: 'Delete permanently',
     tab_today: 'Today', tab_over: 'Overdue', tab_up: 'Upcoming', tab_high: 'High Priority', tab_open: 'All Open', tab_comp: 'Completed', tab_proj: 'By Project',
     empty_tasks: 'No tasks found.', empty_inbox: 'Your Inbox is empty. Use Quick Capture when something comes to mind.',
     empty_proj: 'No projects yet. A project is anything with a finish line.', empty_area: 'No areas yet. An area is something you maintain, like Health or Finances.',
@@ -77,9 +78,10 @@ const TRANSLATIONS = {
     mod_new_res: 'New Resource', mod_edit_res: 'Edit Resource', mod_link: 'Link (optional)', mod_save_res: 'Save Resource',
     mod_assign: 'Assign Inbox Item', mod_assign_desc: 'Link this item to a project, area, or resource — or send it to Archives.', mod_dest: 'Choose a destination', mod_leave: '— Leave in Inbox —', mod_do_assign: 'Assign',
     err_title: 'Please enter a title', err_name: 'Please enter a name', err_save: 'Could not save. Please try again.', err_update: 'Could not update. Please try again.', err_arch: 'Could not archive. Please try again.', err_restore: 'Could not restore. Please try again.', err_backup: 'Could not back up. Please try again.',
-    msg_saved: 'Saved', msg_archived: 'Archived', msg_restored: 'Restored', msg_proj_comp: 'Project completed', msg_backup: 'Backup saved to your Archive folder', msg_sample_add: 'Sample content added', msg_sample_rem: 'Removed',
+    msg_saved: 'Saved', msg_archived: 'Archived', msg_restored: 'Restored', msg_deleted: 'Deleted successfully', msg_proj_comp: 'Project completed', msg_backup: 'Backup saved to your Archive folder', msg_sample_add: 'Sample content added', msg_sample_rem: 'Removed',
     opt_none: '— None —', opt_low: 'Low', opt_med: 'Medium', opt_high: 'High', opt_open: 'Open', opt_comp: 'Completed', opt_blocked: 'Blocked', opt_active: 'Active', opt_inactive: 'Inactive',
-    date_unknown: 'Unknown'
+    date_unknown: 'Unknown',
+    kind_task: 'Task', kind_project: 'Project', kind_inbox: 'Inbox', proj_not_found: 'Project not found.', area_not_found: 'Area not found.', no_project: '(no project)', btn_clear: 'Clear'
   },
   de: {
     nav_home: 'Startseite', nav_today: 'Heute', nav_inbox: 'Eingang', nav_tasks: 'Aufgaben', nav_projects: 'Projekte', nav_areas: 'Bereiche', nav_resources: 'Ressourcen', nav_archives: 'Archiv', nav_review: 'Wochenrückblick', nav_settings: 'Einstellungen & Hilfe',
@@ -95,6 +97,7 @@ const TRANSLATIONS = {
     panel_summary: 'Fortschrittsübersicht', sum_tasks: 'Abgeschlossene Aufgaben:', sum_proj: 'Aktive Projekte:', sum_inbox: 'Elemente im Eingang:',
     btn_add_task: 'Aufgabe hinzufügen', btn_capture: 'Schnellerfassung', btn_new_proj: 'Neues Projekt', btn_new_area: 'Neuer Bereich', btn_new_res: 'Neue Ressource', btn_back: 'Zurück',
     btn_open: 'Öffnen', btn_edit: 'Bearbeiten', btn_archive: 'Archivieren', btn_restore: 'Wiederherstellen', btn_assign: 'Zuweisen', btn_more: 'Weitere Optionen', btn_actions: 'Aktionen', btn_go: 'Los', btn_reset: 'Fortschritt zurücksetzen',
+    btn_delete: 'Löschen', mod_del_title: 'Dauerhaft löschen', mod_del_desc: 'Sind Sie sicher, dass Sie dieses Element dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.', btn_confirm_del: 'Dauerhaft löschen',
     tab_today: 'Heute', tab_over: 'Überfällig', tab_up: 'Anstehend', tab_high: 'Hohe Priorität', tab_open: 'Alle offenen', tab_comp: 'Abgeschlossen', tab_proj: 'Nach Projekt',
     empty_tasks: 'Keine Aufgaben gefunden.', empty_inbox: 'Ihr Eingang ist leer. Verwenden Sie die Schnellerfassung, wenn Ihnen etwas einfällt.',
     empty_proj: 'Noch keine Projekte. Ein Projekt ist alles, was ein Ziel hat.', empty_area: 'Noch keine Bereiche. Ein Bereich ist etwas, das Sie pflegen, wie Gesundheit oder Finanzen.',
@@ -139,9 +142,10 @@ const TRANSLATIONS = {
     mod_new_res: 'Neue Ressource', mod_edit_res: 'Ressource bearbeiten', mod_link: 'Link (optional)', mod_save_res: 'Ressource speichern',
     mod_assign: 'Eingangselement zuweisen', mod_assign_desc: 'Verknüpfen Sie dieses Element mit einem Projekt, Bereich oder einer Ressource — oder senden Sie es ins Archiv.', mod_dest: 'Wählen Sie ein Ziel', mod_leave: '— Im Eingang lassen —', mod_do_assign: 'Zuweisen',
     err_title: 'Bitte geben Sie einen Titel ein', err_name: 'Bitte geben Sie einen Namen ein', err_save: 'Konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.', err_update: 'Konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.', err_arch: 'Konnte nicht archiviert werden. Bitte versuchen Sie es erneut.', err_restore: 'Konnte nicht wiederhergestellt werden. Bitte versuchen Sie es erneut.', err_backup: 'Sicherung fehlgeschlagen. Bitte versuchen Sie es erneut.',
-    msg_saved: 'Gespeichert', msg_archived: 'Archiviert', msg_restored: 'Wiederhergestellt', msg_proj_comp: 'Projekt abgeschlossen', msg_backup: 'Sicherung im Archivordner gespeichert', msg_sample_add: 'Beispielinhalte hinzugefügt', msg_sample_rem: 'Entfernt',
+    msg_saved: 'Gespeichert', msg_archived: 'Archiviert', msg_restored: 'Wiederhergestellt', msg_deleted: 'Erfolgreich gelöscht', msg_proj_comp: 'Projekt abgeschlossen', msg_backup: 'Sicherung im Archivordner gespeichert', msg_sample_add: 'Beispielinhalte hinzugefügt', msg_sample_rem: 'Entfernt',
     opt_none: '— Keine —', opt_low: 'Niedrig', opt_med: 'Mittel', opt_high: 'Hoch', opt_open: 'Offen', opt_comp: 'Abgeschlossen', opt_blocked: 'Blockiert', opt_active: 'Aktiv', opt_inactive: 'Inaktiv',
-    date_unknown: 'Unbekannt'
+    date_unknown: 'Unbekannt',
+    kind_task: 'Aufgabe', kind_project: 'Projekt', kind_inbox: 'Eingang', proj_not_found: 'Projekt nicht gefunden.', area_not_found: 'Bereich nicht gefunden.', no_project: '(kein Projekt)', btn_clear: 'Leeren'
   }
 };
 
@@ -166,53 +170,106 @@ function todayISO() {
     String(d.getDate()).padStart(2, '0');
 }
 
+function pad2(n) {
+  return String(n).padStart(2, '0');
+}
+
 function nowISO() {
-  return new Date().toISOString().replace('T', ' ').slice(0, 19);
+  const d = new Date();
+  return todayISO() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
 }
 
 function addDaysISO(days) {
   const d = new Date();
   d.setDate(d.getDate() + days);
   return d.getFullYear() + '-' +
-    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getDate()).padStart(2, '0');
+    pad2(d.getMonth() + 1) + '-' +
+    pad2(d.getDate());
 }
 
 function makeId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
+// Identifier used to find a note again after a click (falls back to the file path
+// when a note has no para-id, e.g. a note created by hand).
+function noteId(n) {
+  return String((n.fm && n.fm['para-id']) || n.file.path);
+}
+
+// Selects a value in a dropdown; if the value is not one of the options
+// (e.g. the linked project was deleted) it is added, so saving never silently drops the link.
+function setSelectValue(select, value) {
+  if (value && !Array.from(select.options).some(o => o.value === value)) {
+    select.createEl('option', { value: value, text: value });
+  }
+  select.value = value || '';
+}
+
+// Makes a title safe to use as a file name on Windows, macOS and Linux
+// (and safe for Obsidian links).
 function safeFilename(title) {
-  const base = String(title || 'Untitled')
-    .replace(/[\\/:*?"<>|#^\[\]]/g, '-')
+  let base = String(title || '')
+    .replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ')   // control characters / newlines
+    .replace(/[\\/:*?"<>|#^\[\]]/g, '-')             // illegal or link-breaking characters
     .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 80);
+    .trim();
+  base = Array.from(base).slice(0, 80).join('');      // cut by characters, never in the middle of an emoji
+  base = base.replace(/^\.+/, '').replace(/[. ]+$/, '').trim(); // no hidden files, no trailing dot/space (Windows)
+  if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i.test(base)) base = '_' + base; // Windows reserved names
   return base || 'Untitled';
 }
 
-function parseNote(content) {
-  if (!content || content.indexOf('---') !== 0) {
-    return { fm: {}, body: content || '' };
+function unquoteYaml(raw) {
+  const v = String(raw).trim();
+  if (v.length >= 2 && v[0] === '"' && v[v.length - 1] === '"') {
+    return v.slice(1, -1).replace(/\\(["\\nrt])/g, (m, c) => (c === 'n' ? '\n' : c === 'r' ? '\r' : c === 't' ? '\t' : c));
   }
-  const end = content.indexOf('\n---', 3);
-  if (end === -1) return { fm: {}, body: content };
-  const fmText = content.slice(3, end).replace(/^\n/, '');
-  const body = content.slice(end + 4).replace(/^\n+/, '');
+  if (v.length >= 2 && v[0] === "'" && v[v.length - 1] === "'") {
+    return v.slice(1, -1).replace(/''/g, "'");
+  }
+  if (/^true$/i.test(v)) return true;
+  if (/^false$/i.test(v)) return false;
+  if (/^-?\d{1,15}$/.test(v)) return parseInt(v, 10);
+  return v;
+}
+
+function parseNote(content) {
+  const text = String(content || '').replace(/\r\n?/g, '\n');
+  if (!/^---[ \t]*\n/.test(text)) {
+    return { fm: {}, body: text };
+  }
+  const rest = text.slice(3);
+  const m = rest.match(/\n---[ \t]*(\n|$)/);
+  if (!m) return { fm: {}, body: text };
+  const fmText = rest.slice(0, m.index);
+  const body = rest.slice(m.index + m[0].length).replace(/^\n+/, '');
   const fm = {};
   for (const line of fmText.split('\n')) {
-    const m = line.match(/^([^:]+):\s*(.*)$/);
-    if (!m) continue;
-    const key = m[1].trim();
-    let value = m[2].trim();
-    if (value.startsWith('"') && value.endsWith('"')) {
-      value = value.slice(1, -1).replace(/\\"/g, '"');
-    } else if (value === 'true') value = true;
-    else if (value === 'false') value = false;
-    else if (/^-?\d+$/.test(value)) value = parseInt(value, 10);
-    fm[key] = value;
+    if (!line.trim() || /^\s/.test(line) || line[0] === '#' || line[0] === '-') continue;
+    const km = line.match(/^([^:]+):(.*)$/);
+    if (!km) continue;
+    const key = km[1].trim();
+    if (!key || key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
+    fm[key] = unquoteYaml(km[2]);
   }
   return { fm, body };
+}
+
+function yamlValue(v) {
+  if (typeof v === 'boolean' || typeof v === 'number') return String(v);
+  const str = String(v);
+  if (str === '') return '';
+  const isPlain = /^[\p{L}\p{N}][\p{L}\p{N} _.,\/()+-]*$/u.test(str) && str === str.trim();
+  const looksSpecial = /^(true|false|null|yes|no|on|off|~)$/i.test(str) || /^[-+]?[\d.]+$/.test(str);
+  if (isPlain && !looksSpecial) return str;
+  // Quote and escape so that colons, quotes, backslashes and line breaks can never break the file.
+  return '"' + str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
+    .replace(/\t/g, '\\t') + '"';
 }
 
 function serializeNote(fm, body) {
@@ -220,11 +277,8 @@ function serializeNote(fm, body) {
   for (const key of Object.keys(fm)) {
     const v = fm[key];
     if (v === undefined || v === null) continue;
-    let str = String(v);
-    if (/[:#\n]/.test(str) || str !== str.trim()) {
-      str = '"' + str.replace(/"/g, '\\"') + '"';
-    }
-    lines.push(key + ': ' + str);
+    const safeKey = String(key).replace(/[:\r\n]/g, '-');
+    lines.push(safeKey + ': ' + yamlValue(v));
   }
   return '---\n' + lines.join('\n') + '\n---\n\n' + (body || '');
 }
@@ -232,6 +286,50 @@ function serializeNote(fm, body) {
 /* ============================================================
    MODALS
    ============================================================ */
+
+class ConfirmDeleteModal extends Modal {
+  constructor(app, plugin, file, typeKey, onDeleted) {
+    super(app);
+    this.plugin = plugin;
+    this.file = file;
+    this.typeKey = typeKey;
+    this.onDeleted = onDeleted;
+    this.deleting = false;
+  }
+  onOpen() {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.addClass('para-modal');
+    contentEl.createEl('h2', { text: this.plugin.t('mod_del_title') });
+    contentEl.createEl('p', { text: this.plugin.t('mod_del_desc'), attr: { style: 'color: var(--text-error); font-weight: 500;' } });
+
+    const row = contentEl.createDiv({ cls: 'para-modal-actions' });
+    const cancel = row.createEl('button', { text: this.plugin.t('mod_cancel'), cls: 'para-btn' });
+    cancel.addEventListener('click', () => this.close());
+    
+    const delBtn = row.createEl('button', { text: this.plugin.t('btn_confirm_del'), cls: 'para-btn' });
+    delBtn.style.backgroundColor = 'var(--text-error)';
+    delBtn.style.color = 'white';
+    delBtn.style.borderColor = 'var(--text-error)';
+    delBtn.addEventListener('click', async () => {
+      if (this.deleting) return;
+      this.deleting = true;
+      try {
+        await this.app.vault.delete(this.file);
+        this.plugin.dropFromCache(this.file);
+        new Notice(this.plugin.t('msg_deleted'));
+        this.close();
+        if (this.onDeleted) this.onDeleted();
+        this.plugin.refreshAll();
+      } catch (e) {
+        console.error(e);
+        new Notice(this.plugin.t('err_save'));
+        this.deleting = false;
+      }
+    });
+  }
+  onClose() { this.contentEl.empty(); }
+}
 
 class QuickCaptureModal extends Modal {
   constructor(app, plugin) {
@@ -344,7 +442,7 @@ class TaskModal extends Modal {
     for (const p of projects) {
       this.projectSelect.createEl('option', { value: p.fm.title || p.file.basename, text: p.fm.title || p.file.basename });
     }
-    this.projectSelect.value = fm.project || '';
+    setSelectValue(this.projectSelect, fm.project || '');
 
     contentEl.createEl('label', { text: this.plugin.t('mod_area') }).addClass('para-label');
     this.areaSelect = contentEl.createEl('select', { cls: 'para-input' });
@@ -352,7 +450,7 @@ class TaskModal extends Modal {
     for (const a of areas) {
       this.areaSelect.createEl('option', { value: a.fm.title || a.file.basename, text: a.fm.title || a.file.basename });
     }
-    this.areaSelect.value = fm.area || '';
+    setSelectValue(this.areaSelect, fm.area || '');
 
     contentEl.createEl('label', { text: this.plugin.t('mod_notes') }).addClass('para-label');
     this.notesInput = contentEl.createEl('textarea', { cls: 'para-textarea' });
@@ -457,7 +555,7 @@ class ProjectModal extends Modal {
     for (const a of areas) {
       this.areaSelect.createEl('option', { value: a.fm.title || a.file.basename, text: a.fm.title || a.file.basename });
     }
-    this.areaSelect.value = fm.area || '';
+    setSelectValue(this.areaSelect, fm.area || '');
 
     if (!this.existing) {
       contentEl.createEl('label', { text: this.plugin.t('mod_init_tasks') }).addClass('para-label');
@@ -496,6 +594,7 @@ class ProjectModal extends Modal {
       let file;
       if (this.existing) {
         file = await this.plugin.updateNote(this.existing.file, fm);
+        await this.plugin.renameReferences('project', this.existing.fm.title || this.existing.file.basename, title);
       } else {
         file = await this.plugin.createNote('projects', title, fm, '');
       }
@@ -570,6 +669,7 @@ class AreaModal extends Modal {
       };
       if (this.existing) {
         await this.plugin.updateNote(this.existing.file, fm);
+        await this.plugin.renameReferences('area', this.existing.fm.title || this.existing.file.basename, title);
       } else {
         await this.plugin.createNote('areas', title, fm, '');
       }
@@ -623,7 +723,7 @@ class ResourceModal extends Modal {
     for (const p of projects) {
       this.projectSelect.createEl('option', { value: p.fm.title || p.file.basename, text: p.fm.title || p.file.basename });
     }
-    this.projectSelect.value = fm.project || '';
+    setSelectValue(this.projectSelect, fm.project || '');
 
     contentEl.createEl('label', { text: this.plugin.t('mod_area') }).addClass('para-label');
     this.areaSelect = contentEl.createEl('select', { cls: 'para-input' });
@@ -631,7 +731,7 @@ class ResourceModal extends Modal {
     for (const a of areas) {
       this.areaSelect.createEl('option', { value: a.fm.title || a.file.basename, text: a.fm.title || a.file.basename });
     }
-    this.areaSelect.value = fm.area || '';
+    setSelectValue(this.areaSelect, fm.area || '');
 
     contentEl.createEl('label', { text: this.plugin.t('mod_notes') }).addClass('para-label');
     this.notesInput = contentEl.createEl('textarea', { cls: 'para-textarea' });
@@ -686,6 +786,7 @@ class AssignModal extends Modal {
     super(app);
     this.plugin = plugin;
     this.note = note;
+    this.saving = false;
   }
   async onOpen() {
     const { contentEl } = this;
@@ -715,16 +816,18 @@ class AssignModal extends Modal {
     cancel.addEventListener('click', () => this.close());
     const save = row.createEl('button', { text: this.plugin.t('btn_assign'), cls: 'para-btn para-btn-primary' });
     save.addEventListener('click', async () => {
+      if (this.saving) return;
       const val = select.value;
       if (!val) { this.close(); return; }
       const parts = val.split('::');
       const kind = parts[0];
       const name = parts[1];
-      const fm = Object.assign({}, this.note.fm);
+      const fm = {};
       if (kind === 'project') fm.project = name;
       else if (kind === 'area') fm.area = name;
       else if (kind === 'resource') fm.resource = name;
       else if (kind === 'archive') fm.archived = true;
+      this.saving = true;
       try {
         await this.plugin.updateNote(this.note.file, fm);
         new Notice(this.plugin.t('inbox_updated'));
@@ -733,6 +836,7 @@ class AssignModal extends Modal {
       } catch (e) {
         console.error(e);
         new Notice(this.plugin.t('err_update'));
+        this.saving = false;
       }
     });
   }
@@ -800,7 +904,21 @@ class ParaHubView extends ItemView {
   /* ---- top-level render ---- */
 
   async render() {
+    // Every call gets a number. If a newer render starts while this one is still
+    // waiting, the older one stops, so the screen can never be drawn twice.
+    const token = (this.renderToken = (this.renderToken || 0) + 1);
     const root = this.contentEl;
+    const state = this.plugin.state;
+    const screenKey = state.screen + ':' + (state.params && (state.params.projectId || state.params.areaId) || '') + ':' + (state.taskFilter || '');
+
+    // Remember scroll position and search-box focus so a refresh does not disturb the user.
+    const oldBody = root.querySelector('.para-body');
+    const keepScroll = oldBody && this.lastScreenKey === screenKey ? oldBody.scrollTop : 0;
+    const oldSearch = root.querySelector('.para-search');
+    const keepFocus = !!oldSearch && document.activeElement === oldSearch;
+    const keepCaret = keepFocus ? oldSearch.selectionStart : null;
+    this.lastScreenKey = screenKey;
+
     root.empty();
     root.addClass('para-hub');
 
@@ -808,7 +926,9 @@ class ParaHubView extends ItemView {
     this.renderNav(root);
 
     const body = root.createDiv({ cls: 'para-body' });
-    const state = this.plugin.state;
+
+    // Wait until the startup cache is complete; the plugin re-renders as soon as it is.
+    if (!this.plugin.ready) return;
 
     try {
       switch (state.screen) {
@@ -829,11 +949,23 @@ class ParaHubView extends ItemView {
       }
     } catch (e) {
       console.error(e);
+      if (token !== this.renderToken) return;
       body.createEl('p', { cls: 'para-error', text: this.plugin.t('err_save') });
     }
 
+    if (token !== this.renderToken) return;
+
     if (!this.plugin.data.onboardingDone) {
       this.renderOnboarding(root);
+    }
+
+    if (keepScroll) body.scrollTop = keepScroll;
+    if (keepFocus) {
+      const newSearch = root.querySelector('.para-search');
+      if (newSearch) {
+        newSearch.focus();
+        try { newSearch.setSelectionRange(keepCaret, keepCaret); } catch (e) { /* ignore */ }
+      }
     }
   }
 
@@ -862,7 +994,7 @@ class ParaHubView extends ItemView {
         await this.render();
       }
     });
-    const clear = this.iconButton(searchWrap, 'x', 'Clear');
+    const clear = this.iconButton(searchWrap, 'x', this.plugin.t('btn_clear'));
     clear.addEventListener('click', async () => {
       this.plugin.state.searchQuery = '';
       searchInput.value = '';
@@ -923,8 +1055,10 @@ class ParaHubView extends ItemView {
     const overdue = openTasks.filter(t => t.fm.due && t.fm.due < today);
     const upcoming = openTasks.filter(t => t.fm.due && t.fm.due > today && t.fm.due <= addDaysISO(7));
     const activeProjects = projects.filter(p => p.fm.status === 'active' && !p.fm.archived);
-    const attention = activeProjects.filter(p => {
+    const attention = projects.filter(p => {
+      if (p.fm.archived || p.fm.status === 'completed' || p.fm.status === 'inactive') return false;
       if (p.fm.status === 'blocked') return true;
+      if (p.fm.status !== 'active') return false;
       if (p.fm.deadline && p.fm.deadline < today) return true;
       if (p.fm.deadline && p.fm.deadline <= addDaysISO(3)) return true;
       return false;
@@ -963,9 +1097,9 @@ class ParaHubView extends ItemView {
     const recent = body.createDiv({ cls: 'para-panel para-recent' });
     this.panelHeader(recent, 'clock', this.plugin.t('panel_recent'));
     const all = []
-      .concat(tasks.map(t => ({ ...t, kind: this.plugin.t('nav_tasks').slice(0, -1) })))
-      .concat(projects.map(t => ({ ...t, kind: this.plugin.t('nav_projects').slice(0, -1) })))
-      .concat(inbox.map(t => ({ ...t, kind: this.plugin.t('nav_inbox').slice(0, -1) })));
+      .concat(tasks.map(t => ({ ...t, kind: this.plugin.t('kind_task') })))
+      .concat(projects.map(t => ({ ...t, kind: this.plugin.t('kind_project') })))
+      .concat(inbox.map(t => ({ ...t, kind: this.plugin.t('kind_inbox') })));
     all.sort((a, b) => String(b.fm.created || '').localeCompare(String(a.fm.created || '')));
     if (all.length === 0) {
       this.renderEmpty(recent, 'sparkles', this.plugin.t('panel_recent_empty'));
@@ -1056,9 +1190,9 @@ class ParaHubView extends ItemView {
     tasks.sort((a, b) => String(a.fm.due || '9999-12-31').localeCompare(String(b.fm.due || '9999-12-31')));
 
     if (filter === 'byproject') {
-      const groups = {};
+      const groups = Object.create(null);
       for (const t of tasks) {
-        const key = t.fm.project || '(no project)';
+        const key = t.fm.project || this.plugin.t('no_project');
         if (!groups[key]) groups[key] = [];
         groups[key].push(t);
       }
@@ -1091,8 +1225,9 @@ class ParaHubView extends ItemView {
     }
   }
 
-  async renderTaskRow(parent, note) {
-    const priority = String(note.fm.priority || 'medium').toLowerCase();
+  renderTaskRow(parent, note) {
+    let priority = String(note.fm.priority || 'medium').toLowerCase();
+    if (priority !== 'low' && priority !== 'medium' && priority !== 'high') priority = 'medium';
     const isCompleted = note.fm.status === 'completed';
     const row = parent.createDiv({ cls: 'para-task-row para-priority-' + priority + (isCompleted ? ' is-completed' : '') });
 
@@ -1101,12 +1236,17 @@ class ParaHubView extends ItemView {
     check.checked = isCompleted;
     check.setAttribute('aria-label', isCompleted ? this.plugin.t('task_mark_inc') : this.plugin.t('task_mark_comp'));
     check.addEventListener('change', async () => {
-      const fm = Object.assign({}, note.fm);
+      if (check.disabled) return;
+      check.disabled = true; // a second click cannot start a second save
+      const fm = {};
       fm.status = check.checked ? 'completed' : 'open';
       try {
-        await this.plugin.updateNote(note.file, fm, note.body);
+        await this.plugin.updateNote(note.file, fm);
         this.plugin.refreshAll();
       } catch (e) {
+        console.error(e);
+        check.disabled = false;
+        check.checked = !check.checked;
         new Notice(this.plugin.t('err_update'));
       }
     });
@@ -1129,7 +1269,7 @@ class ParaHubView extends ItemView {
     }
     
     if (note.fm.project) {
-      const exists = await this.plugin.noteExists(note.fm.project, 'projects');
+      const exists = this.plugin.noteExistsSync(note.fm.project, 'projects');
       const pill = meta.createSpan({ cls: 'para-pill' + (exists ? '' : ' para-pill-warn') });
       const pic = pill.createSpan({ cls: 'para-pill-icon' });
       setIcon(pic, exists ? 'folder' : 'alert-circle');
@@ -1143,9 +1283,13 @@ class ParaHubView extends ItemView {
       menu.addItem((item) => item.setTitle(this.plugin.t('btn_edit')).setIcon('pencil').onClick(() => new TaskModal(this.app, this.plugin, note).open()));
       menu.addSeparator();
       menu.addItem((item) => item.setTitle(this.plugin.t('btn_archive')).setIcon('archive').onClick(async () => {
-        const fm = Object.assign({}, note.fm); fm.archived = true;
-        try { await this.plugin.updateNote(note.file, fm, note.body); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
+        const fm = {}; fm.archived = true;
+        try { await this.plugin.updateNote(note.file, fm); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
         catch (e) { new Notice(this.plugin.t('err_arch')); }
+      }));
+      menu.addSeparator();
+      menu.addItem((item) => item.setTitle(this.plugin.t('btn_delete')).setIcon('trash').onClick(() => {
+        new ConfirmDeleteModal(this.app, this.plugin, note.file, 'tasks').open();
       }));
       menu.showAtMouseEvent(evt);
     });
@@ -1186,9 +1330,13 @@ class ParaHubView extends ItemView {
       moreBtn.addEventListener('click', (evt) => {
         const menu = new Menu();
         menu.addItem((itemMenu) => itemMenu.setTitle(this.plugin.t('btn_archive')).setIcon('archive').onClick(async () => {
-          const fm = Object.assign({}, item.fm); fm.archived = true;
-          try { await this.plugin.updateNote(item.file, fm, item.body); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
+          const fm = {}; fm.archived = true;
+          try { await this.plugin.updateNote(item.file, fm); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
           catch (e) { new Notice(this.plugin.t('err_arch')); }
+        }));
+        menu.addSeparator();
+        menu.addItem((itemMenu) => itemMenu.setTitle(this.plugin.t('btn_delete')).setIcon('trash').onClick(() => {
+          new ConfirmDeleteModal(this.app, this.plugin, item.file, 'inbox').open();
         }));
         menu.showAtMouseEvent(evt);
       });
@@ -1249,7 +1397,7 @@ class ParaHubView extends ItemView {
       const oIc = openBtn.createSpan({ cls: 'para-btn-icon' });
       setIcon(oIc, 'arrow-right');
       openBtn.createSpan({ text: this.plugin.t('btn_open') });
-      openBtn.addEventListener('click', () => this.go('project', { projectId: p.fm['para-id'] }));
+      openBtn.addEventListener('click', () => this.go('project', { projectId: noteId(p) }));
       
       const moreBtn = this.iconButton(actions, 'more-horizontal', this.plugin.t('btn_more'));
       moreBtn.addEventListener('click', (evt) => {
@@ -1257,9 +1405,13 @@ class ParaHubView extends ItemView {
         menu.addItem((item) => item.setTitle(this.plugin.t('btn_edit')).setIcon('pencil').onClick(() => new ProjectModal(this.app, this.plugin, p).open()));
         menu.addSeparator();
         menu.addItem((item) => item.setTitle(this.plugin.t('btn_archive')).setIcon('archive').onClick(async () => {
-          const fm = Object.assign({}, p.fm); fm.archived = true;
-          try { await this.plugin.updateNote(p.file, fm, p.body); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
+          const fm = {}; fm.archived = true;
+          try { await this.plugin.updateNote(p.file, fm); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
           catch (e) { new Notice(this.plugin.t('err_arch')); }
+        }));
+        menu.addSeparator();
+        menu.addItem((item) => item.setTitle(this.plugin.t('btn_delete')).setIcon('trash').onClick(() => {
+          new ConfirmDeleteModal(this.app, this.plugin, p.file, 'projects').open();
         }));
         menu.showAtMouseEvent(evt);
       });
@@ -1272,9 +1424,9 @@ class ParaHubView extends ItemView {
   async renderProjectDetail(body) {
     const id = this.plugin.state.params.projectId;
     const projects = await this.plugin.getNotes('projects');
-    const project = projects.find(p => p.fm['para-id'] === id);
+    const project = projects.find(p => noteId(p) === id);
     if (!project) {
-      this.renderEmpty(body, 'alert-circle', 'Project not found.');
+      this.renderEmpty(body, 'alert-circle', this.plugin.t('proj_not_found'));
       const back = body.createEl('button', { cls: 'para-btn' });
       const bIc = back.createSpan({ cls: 'para-btn-icon' });
       setIcon(bIc, 'arrow-left');
@@ -1299,15 +1451,19 @@ class ParaHubView extends ItemView {
       const menu = new Menu();
       menu.addItem((item) => item.setTitle(this.plugin.t('proj_edit')).setIcon('pencil').onClick(() => new ProjectModal(this.app, this.plugin, project).open()));
       menu.addItem((item) => item.setTitle(this.plugin.t('proj_comp')).setIcon('check-circle').onClick(async () => {
-        const fm = Object.assign({}, project.fm); fm.status = 'completed';
-        try { await this.plugin.updateNote(project.file, fm, project.body); new Notice(this.plugin.t('msg_proj_comp')); this.plugin.refreshAll(); }
+        const fm = {}; fm.status = 'completed';
+        try { await this.plugin.updateNote(project.file, fm); new Notice(this.plugin.t('msg_proj_comp')); this.plugin.refreshAll(); }
         catch (e) { new Notice(this.plugin.t('err_update')); }
       }));
       menu.addSeparator();
       menu.addItem((item) => item.setTitle(this.plugin.t('btn_archive')).setIcon('archive').onClick(async () => {
-        const fm = Object.assign({}, project.fm); fm.archived = true;
-        try { await this.plugin.updateNote(project.file, fm, project.body); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
+        const fm = {}; fm.archived = true;
+        try { await this.plugin.updateNote(project.file, fm); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
         catch (e) { new Notice(this.plugin.t('err_arch')); }
+      }));
+      menu.addSeparator();
+      menu.addItem((item) => item.setTitle(this.plugin.t('btn_delete')).setIcon('trash').onClick(() => {
+        new ConfirmDeleteModal(this.app, this.plugin, project.file, 'projects', () => this.go('projects')).open();
       }));
       menu.showAtMouseEvent(evt);
     });
@@ -1346,9 +1502,12 @@ class ParaHubView extends ItemView {
     const iIc = inlineBtn.createSpan({ cls: 'para-btn-icon' });
     setIcon(iIc, 'plus');
     inlineBtn.createSpan({ text: this.plugin.t('proj_add') });
+    let adding = false;
     const addFn = async () => {
+      if (adding) return;
       const val = inlineInput.value.trim();
       if (!val) return;
+      adding = true;
       const fm = {
         'para-type': 'task', 'para-id': makeId(), 'title': val,
         'description': '', 'due': '', 'priority': 'medium', 'status': 'open',
@@ -1360,7 +1519,7 @@ class ParaHubView extends ItemView {
         await this.plugin.createNote('tasks', val, fm, '');
         new Notice(this.plugin.t('msg_saved'));
         this.render();
-      } catch (e) { new Notice(this.plugin.t('err_save')); }
+      } catch (e) { console.error(e); adding = false; new Notice(this.plugin.t('err_save')); }
     };
     inlineBtn.addEventListener('click', addFn);
     inlineInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addFn(); });
@@ -1417,12 +1576,16 @@ class ParaHubView extends ItemView {
       const oIc = openBtn.createSpan({ cls: 'para-btn-icon' });
       setIcon(oIc, 'arrow-right');
       openBtn.createSpan({ text: this.plugin.t('btn_open') });
-      openBtn.addEventListener('click', () => this.go('area', { areaId: a.fm['para-id'] }));
+      openBtn.addEventListener('click', () => this.go('area', { areaId: noteId(a) }));
       
       const moreBtn = this.iconButton(actions, 'more-horizontal', this.plugin.t('btn_more'));
       moreBtn.addEventListener('click', (evt) => {
         const menu = new Menu();
         menu.addItem((item) => item.setTitle(this.plugin.t('btn_edit')).setIcon('pencil').onClick(() => new AreaModal(this.app, this.plugin, a).open()));
+        menu.addSeparator();
+        menu.addItem((item) => item.setTitle(this.plugin.t('btn_delete')).setIcon('trash').onClick(() => {
+          new ConfirmDeleteModal(this.app, this.plugin, a.file, 'areas').open();
+        }));
         menu.showAtMouseEvent(evt);
       });
     }
@@ -1434,9 +1597,9 @@ class ParaHubView extends ItemView {
   async renderAreaDetail(body) {
     const id = this.plugin.state.params.areaId;
     const areas = await this.plugin.getNotes('areas');
-    const area = areas.find(a => a.fm['para-id'] === id);
+    const area = areas.find(a => noteId(a) === id);
     if (!area) {
-      this.renderEmpty(body, 'alert-circle', 'Area not found.');
+      this.renderEmpty(body, 'alert-circle', this.plugin.t('area_not_found'));
       return;
     }
     const back = body.createEl('button', { cls: 'para-btn para-btn-small' });
@@ -1510,9 +1673,13 @@ class ParaHubView extends ItemView {
         menu.addItem((item) => item.setTitle(this.plugin.t('btn_edit')).setIcon('pencil').onClick(() => new ResourceModal(this.app, this.plugin, r).open()));
         menu.addSeparator();
         menu.addItem((item) => item.setTitle(this.plugin.t('btn_archive')).setIcon('archive').onClick(async () => {
-          const fm = Object.assign({}, r.fm); fm.archived = true;
-          try { await this.plugin.updateNote(r.file, fm, r.body); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
+          const fm = {}; fm.archived = true;
+          try { await this.plugin.updateNote(r.file, fm); new Notice(this.plugin.t('msg_archived')); this.plugin.refreshAll(); }
           catch (e) { new Notice(this.plugin.t('err_arch')); }
+        }));
+        menu.addSeparator();
+        menu.addItem((item) => item.setTitle(this.plugin.t('btn_delete')).setIcon('trash').onClick(() => {
+          new ConfirmDeleteModal(this.app, this.plugin, r.file, 'resources').open();
         }));
         menu.showAtMouseEvent(evt);
       });
@@ -1547,14 +1714,24 @@ class ParaHubView extends ItemView {
       card.createEl('h3', { text: n.fm.title || n.file.basename });
       card.createEl('p', { cls: 'para-muted', text: this.plugin.t('arch_type') + ' ' + (n.fm['para-type'] || n.folderKey) });
       const actions = card.createDiv({ cls: 'para-row' });
+      
       const restoreBtn = actions.createEl('button', { cls: 'para-btn para-btn-small para-btn-primary' });
       const rIc = restoreBtn.createSpan({ cls: 'para-btn-icon' });
       setIcon(rIc, 'rotate-ccw');
       restoreBtn.createSpan({ text: this.plugin.t('btn_restore') });
       restoreBtn.addEventListener('click', async () => {
-        const fm = Object.assign({}, n.fm); fm.archived = false;
-        try { await this.plugin.updateNote(n.file, fm, n.body); new Notice(this.plugin.t('msg_restored')); this.plugin.refreshAll(); }
+        const fm = {}; fm.archived = false;
+        try { await this.plugin.updateNote(n.file, fm); new Notice(this.plugin.t('msg_restored')); this.plugin.refreshAll(); }
         catch (e) { new Notice(this.plugin.t('err_restore')); }
+      });
+      
+      const moreBtn = this.iconButton(actions, 'more-horizontal', this.plugin.t('btn_more'));
+      moreBtn.addEventListener('click', (evt) => {
+        const menu = new Menu();
+        menu.addItem((item) => item.setTitle(this.plugin.t('btn_delete')).setIcon('trash').onClick(() => {
+          new ConfirmDeleteModal(this.app, this.plugin, n.file, n.folderKey).open();
+        }));
+        menu.showAtMouseEvent(evt);
       });
     }
     if (archived.length > MAX_RENDER) {
@@ -1785,19 +1962,26 @@ class ParaHubView extends ItemView {
    ============================================================ */
 
 class ParaHubPlugin extends Plugin {
-  async onload() {
-    await this.loadPluginData();
-    await this.ensureFolders();
-    
-    this.cache = {};
-    await this.buildCache();
+  emptyCache() {
+    return { inbox: [], tasks: [], projects: [], areas: [], resources: [], archives: [] };
+  }
 
+  async onload() {
+    // Safe defaults first, so nothing can break while the plugin is still starting.
+    this.cache = this.emptyCache();
+    this.ready = false;
+    this.writeChain = Promise.resolve();
+    this.refreshTimeout = null;
+    this.rebuildTimeout = null;
     this.state = {
       screen: 'home',
       params: {},
       searchQuery: '',
       taskFilter: 'today',
     };
+
+    await this.loadPluginData();
+    try { await this.ensureFolders(); } catch (e) { console.error(e); }
 
     this.registerView(VIEW_TYPE, (leaf) => new ParaHubView(leaf, this));
     this.addRibbonIcon('layout-dashboard', 'Open PARA Hub', () => this.activateView());
@@ -1808,43 +1992,74 @@ class ParaHubPlugin extends Plugin {
     this.addCommand({ id: 'new-project', name: 'New Project', callback: () => new ProjectModal(this.app, this).open() });
     this.addCommand({ id: 'weekly-review', name: 'Open Weekly Review', callback: () => {
       this.state.screen = 'review';
+      this.state.params = {};
       this.refreshAll();
       this.activateView();
     }});
 
     this.addSettingTab(new ParaHubSettingTab(this.app, this));
 
-    this.registerEvent(this.app.vault.on('modify', async (file) => {
+    // Wait for Obsidian to fully load the vault before reading files.
+    // The screen only draws its content once `ready` is true.
+    this.app.workspace.onLayoutReady(async () => {
+      try { await this.buildCache(); } catch (e) { console.error(e); }
+      this.ready = true;
+      this.refreshAll();
+    });
+
+    const isNote = (f) => !!f && f.extension === 'md';
+
+    // All listeners are registered with registerEvent, so Obsidian removes them when the plugin is unloaded.
+    this.registerEvent(this.app.vault.on('create', async (file) => {
+      if (!this.ready || !isNote(file)) return;
       const typeKey = this.getTypeKeyForPath(file.path);
       if (typeKey) {
-        await this.loadFileToCache(file, typeKey, true);
+        await this.loadFileToCache(file, typeKey);
+        this.debounceRefresh();
+      }
+    }));
+
+    this.registerEvent(this.app.vault.on('modify', async (file) => {
+      if (!this.ready || !isNote(file)) return;
+      const typeKey = this.getTypeKeyForPath(file.path);
+      if (typeKey) {
+        await this.loadFileToCache(file, typeKey);
         this.debounceRefresh();
       }
     }));
 
     this.registerEvent(this.app.vault.on('delete', (file) => {
-      const typeKey = this.getTypeKeyForPath(file.path);
-      if (typeKey) {
-        this.cache[typeKey] = this.cache[typeKey].filter(n => n.file.path !== file.path);
-        this.debounceRefresh();
-      }
+      if (!this.ready) return;
+      this.dropFromCache(file);
+      this.debounceRefresh();
     }));
 
     this.registerEvent(this.app.vault.on('rename', async (file, oldPath) => {
-      const oldType = this.getTypeKeyForPath(oldPath);
-      const newType = this.getTypeKeyForPath(file.path);
-      if (oldType) this.cache[oldType] = this.cache[oldType].filter(n => n.file.path !== oldPath);
-      if (newType) await this.loadFileToCache(file, newType);
+      if (!this.ready) return;
+      if (!isNote(file)) {
+        // A whole folder was renamed or moved: simply rebuild the index.
+        this.scheduleRebuild();
+        return;
+      }
+      // The cached entry points to the same file object, which already has the new path.
+      this.dropFromCache(file);
+      const typeKey = this.getTypeKeyForPath(file.path);
+      if (typeKey) await this.loadFileToCache(file, typeKey);
       this.debounceRefresh();
     }));
   }
 
   t(key) {
-    const lang = this.data.language || 'en';
-    return TRANSLATIONS[lang] && TRANSLATIONS[lang][key] ? TRANSLATIONS[lang][key] : key;
+    const lang = (this.data && this.data.language) || 'en';
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.en;
+    if (dict[key] !== undefined) return dict[key];
+    if (TRANSLATIONS.en[key] !== undefined) return TRANSLATIONS.en[key];
+    return key;
   }
 
   async onunload() {
+    if (this.refreshTimeout) clearTimeout(this.refreshTimeout);
+    if (this.rebuildTimeout) clearTimeout(this.rebuildTimeout);
     this.app.workspace.detachLeavesOfType(VIEW_TYPE);
   }
 
@@ -1861,9 +2076,8 @@ class ParaHubPlugin extends Plugin {
     this.data = Object.assign(base, data || {});
     this.data.folders = Object.assign({}, DEFAULT_FOLDERS, this.data.folders || {});
     this.data.reviewProgress = this.data.reviewProgress || {};
-    this.data.language = this.data.language || 'en';
+    this.data.language = TRANSLATIONS[this.data.language] ? this.data.language : 'en';
     
-    // Future data migrations go here
     if (!this.data.schemaVersion || this.data.schemaVersion < CURRENT_SCHEMA_VERSION) {
       this.data.schemaVersion = CURRENT_SCHEMA_VERSION;
       await this.saveData(this.data);
@@ -1876,32 +2090,77 @@ class ParaHubPlugin extends Plugin {
       if (!folder) continue;
       const existing = this.app.vault.getAbstractFileByPath(normalizePath(folder));
       if (!existing) {
-        try { await this.app.vault.createFolder(folder); } catch (e) { /* already exists */ }
+        try { await this.app.vault.createFolder(normalizePath(folder)); } catch (e) { /* already exists */ }
       }
     }
   }
+
+  /* ---------------- cache ---------------- */
 
   async buildCache() {
-    for (const key of Object.keys(this.data.folders)) {
-      this.cache[key] = [];
-      const folder = this.data.folders[key];
-      if (!folder) continue;
-      const prefix = normalizePath(folder) + '/';
-      const files = this.app.vault.getMarkdownFiles().filter(f => f.path.startsWith(prefix));
-      for (const file of files) {
-        await this.loadFileToCache(file, key);
-      }
+    // Build into a fresh object and swap at the end, so the screen never sees a half-built cache.
+    const fresh = this.emptyCache();
+    const allFiles = this.app.vault.getMarkdownFiles();
+    const keys = Object.keys(this.data.folders);
+    for (const file of allFiles) {
+      const typeKey = this.getTypeKeyForPath(file.path);
+      if (!typeKey || !keys.includes(typeKey)) continue;
+      try {
+        const content = await this.app.vault.cachedRead(file);
+        const parsed = parseNote(content);
+        this.normalizeFm(parsed.fm);
+        if (!fresh[typeKey]) fresh[typeKey] = [];
+        fresh[typeKey].push({ file, fm: parsed.fm, body: parsed.body });
+      } catch (e) { /* skip unreadable file */ }
+    }
+    this.cache = fresh;
+  }
+
+  scheduleRebuild() {
+    if (this.rebuildTimeout) clearTimeout(this.rebuildTimeout);
+    this.rebuildTimeout = setTimeout(async () => {
+      this.rebuildTimeout = null;
+      try { await this.buildCache(); } catch (e) { console.error(e); }
+      this.refreshAll();
+    }, 500);
+  }
+
+  // Makes "true"/"false" written as text behave like real yes/no values.
+  normalizeFm(fm) {
+    for (const k of ['archived', 'sample']) {
+      if (fm[k] === 'true') fm[k] = true;
+      else if (fm[k] === 'false') fm[k] = false;
+    }
+    return fm;
+  }
+
+  // Inserts or replaces a cache entry (matched by file), never creating duplicates.
+  putCache(typeKey, entry) {
+    if (!this.cache[typeKey]) this.cache[typeKey] = [];
+    const list = this.cache[typeKey];
+    const idx = list.findIndex(n => n.file === entry.file || n.file.path === entry.file.path);
+    if (idx >= 0) list[idx] = entry;
+    else list.push(entry);
+  }
+
+  // Removes a file (or everything inside a deleted/moved folder) from the cache.
+  dropFromCache(file) {
+    const path = file.path;
+    for (const key of Object.keys(this.cache)) {
+      this.cache[key] = this.cache[key].filter(n => n.file !== file && n.file.path !== path && !n.file.path.startsWith(path + '/'));
     }
   }
 
-  async loadFileToCache(file, typeKey, replace = false) {
+  async loadFileToCache(file, typeKey) {
     try {
-      const content = await this.app.vault.cachedRead(file);
+      const content = await this.app.vault.read(file);
       const parsed = parseNote(content);
-      if (replace) {
-        this.cache[typeKey] = this.cache[typeKey].filter(n => n.file.path !== file.path);
+      this.normalizeFm(parsed.fm);
+      // A file lives in exactly one bucket.
+      for (const key of Object.keys(this.cache)) {
+        if (key !== typeKey) this.cache[key] = this.cache[key].filter(n => n.file !== file);
       }
-      this.cache[typeKey].push({ file, fm: parsed.fm, body: parsed.body });
+      this.putCache(typeKey, { file, fm: parsed.fm, body: parsed.body });
     } catch (e) { /* skip */ }
   }
 
@@ -1919,7 +2178,10 @@ class ParaHubPlugin extends Plugin {
 
   debounceRefresh() {
     if (this.refreshTimeout) clearTimeout(this.refreshTimeout);
-    this.refreshTimeout = setTimeout(() => this.refreshAll(), 300);
+    this.refreshTimeout = setTimeout(() => {
+      this.refreshTimeout = null;
+      this.refreshAll();
+    }, 300);
   }
 
   async activateView() {
@@ -1933,7 +2195,7 @@ class ParaHubPlugin extends Plugin {
       }
       await leaf.setViewState({ type: VIEW_TYPE, active: true });
     }
-    workspace.revealLeaf(leaf);
+    await workspace.revealLeaf(leaf);
   }
 
   refreshAll() {
@@ -1952,54 +2214,102 @@ class ParaHubPlugin extends Plugin {
     return tasks.filter(t => !t.fm.archived && t.fm.project === projectName);
   }
 
-  async noteExists(name, typeKey) {
+  noteExistsSync(name, typeKey) {
     if (!name) return false;
-    const notes = await this.getNotes(typeKey);
+    const notes = this.cache[typeKey] || [];
     return notes.some(n => (n.fm.title || n.file.basename) === name);
   }
 
-  async createNote(typeKey, title, frontmatter, body) {
-    const folder = this.data.folders[typeKey];
+  async noteExists(name, typeKey) {
+    return this.noteExistsSync(name, typeKey);
+  }
+
+  /* ---------------- writing files ---------------- */
+
+  // All file writes run one after another. Two quick clicks (or two saves at the
+  // same millisecond) can therefore never pick the same file name or overwrite each other.
+  enqueueWrite(task) {
+    const result = this.writeChain.then(task);
+    this.writeChain = result.catch(() => {});
+    return result;
+  }
+
+  createNote(typeKey, title, frontmatter, body) {
+    return this.enqueueWrite(() => this.createNoteNow(typeKey, title, frontmatter, body));
+  }
+
+  async createNoteNow(typeKey, title, frontmatter, body) {
+    const folder = this.data.folders[typeKey] || DEFAULT_FOLDERS[typeKey];
     const folderExists = this.app.vault.getAbstractFileByPath(normalizePath(folder));
     if (!folderExists) {
-      try { await this.app.vault.createFolder(folder); } catch (e) { /* already exists */ }
+      try { await this.app.vault.createFolder(normalizePath(folder)); } catch (e) { /* already exists */ }
     }
     const base = safeFilename(title);
-    const path = await this.uniquePath(folder, base);
     const content = serializeNote(frontmatter, body);
-    const file = await this.app.vault.create(path, content);
-    
-    this.cache[typeKey].push({ file, fm: frontmatter, body });
-    
+    let file = null;
+    let lastError = null;
+    for (let attempt = 1; attempt <= 6 && !file; attempt++) {
+      const path = await this.uniquePath(folder, base, attempt);
+      try {
+        file = await this.app.vault.create(path, content);
+      } catch (e) {
+        lastError = e; // e.g. the name was taken a moment ago: try the next free name
+      }
+    }
+    if (!file) throw (lastError || new Error('Could not create note'));
+
+    this.normalizeFm(frontmatter);
+    this.putCache(typeKey, { file, fm: frontmatter, body: body || '' });
     return file;
   }
 
-  async updateNote(file, frontmatter, body) {
+  // Changes only the fields you pass; every other field and the note text are re-read from the file,
+  // so nothing newer on disk is overwritten by an old copy.
+  updateNote(file, frontmatter, body) {
+    return this.enqueueWrite(() => this.updateNoteNow(file, frontmatter, body));
+  }
+
+  async updateNoteNow(file, frontmatter, body) {
     const current = await this.app.vault.read(file);
     const parsed = parseNote(current);
+    const finalFm = this.normalizeFm(Object.assign({}, parsed.fm, frontmatter));
     const finalBody = (body === undefined) ? parsed.body : body;
-    const content = serializeNote(frontmatter, finalBody);
-    await this.app.vault.modify(file, content);
-    
+    await this.app.vault.modify(file, serializeNote(finalFm, finalBody));
+
     const typeKey = this.getTypeKeyForPath(file.path);
-    if (typeKey) {
-      this.cache[typeKey] = this.cache[typeKey].filter(n => n.file.path !== file.path);
-      this.cache[typeKey].push({ file, fm: frontmatter, body: finalBody });
-    }
-    
+    if (typeKey) this.putCache(typeKey, { file, fm: finalFm, body: finalBody });
     return file;
   }
 
-  async uniquePath(folder, base) {
-    let name = base;
-    let i = 2;
-    let path = normalizePath(folder + '/' + name + '.md');
-    while (this.app.vault.getAbstractFileByPath(path)) {
-      name = base + ' (' + i + ')';
-      path = normalizePath(folder + '/' + name + '.md');
+  // When a project or area is renamed, everything that points to the old name follows the new name.
+  async renameReferences(kind, oldName, newName) {
+    if (!oldName || !newName || oldName === newName) return;
+    const targets = kind === 'project' ? ['tasks', 'resources'] : ['projects', 'tasks', 'resources'];
+    for (const key of targets) {
+      const notes = (this.cache[key] || []).slice();
+      for (const n of notes) {
+        if (n.fm[kind] === oldName) {
+          await this.updateNote(n.file, { [kind]: newName });
+        }
+      }
+    }
+  }
+
+  // Finds a file name that is free, ignoring upper/lower case (Windows and macOS treat "A.md" and "a.md" as the same file).
+  async uniquePath(folder, base, startAt) {
+    const dir = this.app.vault.getAbstractFileByPath(normalizePath(folder));
+    const taken = new Set();
+    if (dir && dir.children) {
+      for (const c of dir.children) taken.add(c.name.toLowerCase());
+    }
+    let i = startAt && startAt > 1 ? startAt : 1;
+    for (;;) {
+      const name = i === 1 ? base : base + ' (' + i + ')';
+      if (!taken.has((name + '.md').toLowerCase())) {
+        return normalizePath(folder + '/' + name + '.md');
+      }
       i++;
     }
-    return path;
   }
 
   async searchAll(q) {
@@ -2012,6 +2322,7 @@ class ParaHubPlugin extends Plugin {
       const key = b[0], label = b[1];
       const notes = await this.getNotes(key);
       for (const n of notes) {
+        if (n.fm.archived === true) continue; // archived items are listed once, below
         const title = String(n.fm.title || n.file.basename).toLowerCase();
         const body = String(n.body || '').toLowerCase();
         const desc = String(n.fm.description || '').toLowerCase();
@@ -2024,7 +2335,7 @@ class ParaHubPlugin extends Plugin {
     for (const key of ['tasks', 'projects', 'areas', 'resources', 'inbox']) {
       const notes = await this.getNotes(key);
       for (const n of notes) {
-        if (n.fm.archived === true || n.fm.archived === 'true') {
+        if (n.fm.archived === true) {
           const title = String(n.fm.title || n.file.basename).toLowerCase();
           if (title.includes(q) || String(n.body || '').toLowerCase().includes(q)) {
             archived.push(Object.assign({}, n, { type: this.t('nav_archives') }));
@@ -2045,17 +2356,27 @@ class ParaHubPlugin extends Plugin {
     
     for (const key of order) {
       const notes = await this.getNotes(key);
-      if (notes.length === 0) continue;
+      const list = notes.filter(n => !n.file.basename.startsWith('PARA-Backup-')); // never copy old backups into new ones
+      if (list.length === 0) continue;
       content += '## ' + key + '\n\n';
-      for (const n of notes) {
+      for (const n of list) {
         content += '### ' + (n.fm.title || n.file.basename) + '\n\n';
-        content += '```\n';
-        try { content += await this.app.vault.read(n.file); } catch (e) { content += '(could not read)'; }
-        content += '\n```\n\n';
+        let text;
+        try { text = await this.app.vault.read(n.file); } catch (e) { text = '(could not read)'; }
+        // Use a fence that is longer than any run of backticks inside the note.
+        const longest = (text.match(/`+/g) || []).reduce((m, r) => Math.max(m, r.length), 0);
+        const fence = '`'.repeat(Math.max(3, longest + 1));
+        content += fence + '\n' + text + '\n' + fence + '\n\n';
       }
     }
-    const path = await this.uniquePath(folders.archives, filename);
-    await this.app.vault.create(path, content);
+    await this.enqueueWrite(async () => {
+      const folder = folders.archives || DEFAULT_FOLDERS.archives;
+      if (!this.app.vault.getAbstractFileByPath(normalizePath(folder))) {
+        try { await this.app.vault.createFolder(normalizePath(folder)); } catch (e) { /* exists */ }
+      }
+      const path = await this.uniquePath(folder, filename);
+      await this.app.vault.create(path, content);
+    });
     new Notice(this.t('msg_backup'));
   }
 
@@ -2091,7 +2412,7 @@ class ParaHubPlugin extends Plugin {
         'sample': true,
       };
       Object.assign(fm, s.fm);
-      try { await this.createNote(s.folder, s.title, fm, ''); } catch (e) { /* skip */ }
+      try { await this.createNote(s.folder, s.title, fm, ''); } catch (e) { console.error(e); }
     }
     new Notice(this.t('msg_sample_add'));
     this.refreshAll();
@@ -2102,10 +2423,10 @@ class ParaHubPlugin extends Plugin {
     for (const key of ['inbox', 'tasks', 'projects', 'areas', 'resources', 'archives']) {
       const notes = await this.getNotes(key);
       for (const n of notes) {
-        if (n.fm.sample === true || n.fm.sample === 'true') {
+        if (n.fm.sample === true) {
           try {
             await this.app.vault.delete(n.file);
-            this.cache[key] = this.cache[key].filter(x => x.file.path !== n.file.path);
+            this.dropFromCache(n.file);
             removed++;
           } catch (e) { /* skip */ }
         }
@@ -2141,7 +2462,7 @@ class ParaHubSettingTab extends PluginSettingTab {
         .addOption('de', 'Deutsch')
         .setValue(this.plugin.data.language || 'en')
         .onChange(async (val) => {
-          this.plugin.data.language = val;
+          this.plugin.data.language = TRANSLATIONS[val] ? val : 'en';
           await this.plugin.saveData(this.plugin.data);
           this.plugin.refreshAll();
           this.display(); // re-render settings tab
@@ -2163,10 +2484,13 @@ class ParaHubSettingTab extends PluginSettingTab {
         .addText(t => t
           .setValue(this.plugin.data.folders[key] || '')
           .onChange(async v => {
-            this.plugin.data.folders[key] = v.trim() || DEFAULT_FOLDERS[key];
+            // Clean the typed name (no leading/trailing slashes, no "..") and only rebuild once typing has paused.
+            const raw = (v || '').trim();
+            let clean = raw ? normalizePath(raw).replace(/^\/+|\/+$/g, '') : '';
+            if (!clean || clean.split('/').includes('..')) clean = DEFAULT_FOLDERS[key];
+            this.plugin.data.folders[key] = clean;
             await this.plugin.saveData(this.plugin.data);
-            await this.plugin.ensureFolders();
-            await this.plugin.buildCache();
+            this.plugin.scheduleRebuild();
           })
         );
     }
