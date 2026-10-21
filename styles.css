@@ -1,0 +1,952 @@
+/* ============================================================
+   PARA Hub — styles v2.3 (Premium Dashboard)
+   ============================================================ */
+
+.para-hub {
+  --para-gap: 16px;
+  --para-gap-sm: 8px;
+  --para-radius: 12px;
+  --para-radius-sm: 8px;
+  --para-radius-xs: 6px;
+  --para-radius-pill: 999px;
+  --para-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --para-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --para-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+  --para-prio-low: var(--color-green, #22c55e);
+  --para-prio-medium: var(--color-orange, #f59e0b);
+  --para-prio-high: var(--color-red, #ef4444);
+  --para-prio-low-rgb: 34, 197, 94;
+  --para-prio-medium-rgb: 245, 158, 11;
+  --para-prio-high-rgb: 239, 68, 68;
+  --para-accent-rgb: 99, 102, 241;
+  --para-transition: 140ms ease;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  gap: 0;
+  color: var(--text-normal);
+  font-size: 14px;
+  font-family: var(--font-interface);
+  background: var(--background-primary);
+}
+
+.para-hub *,
+.para-hub *::before,
+.para-hub *::after {
+  box-sizing: border-box;
+}
+
+.para-hub *:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+  border-radius: var(--para-radius-xs);
+}
+
+.para-hub button {
+  height: auto;
+  line-height: normal;
+}
+
+/* ============================== HEADER ============================== */
+
+.para-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.para-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.para-title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--para-radius-sm);
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  flex-shrink: 0;
+}
+.para-title-icon .svg-icon { width: 16px; height: 16px; }
+
+.para-title {
+  margin: 0 !important;
+  font-size: 1.1em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.para-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.para-search-icon {
+  position: absolute;
+  left: 10px;
+  display: flex;
+  color: var(--text-muted);
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+.para-search-icon .svg-icon { width: 14px; height: 14px; }
+
+.para-search {
+  flex: 1;
+  padding: 8px 10px 8px 32px;
+  border-radius: var(--para-radius-sm);
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color var(--para-transition), box-shadow var(--para-transition);
+}
+.para-search:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 3px rgba(var(--para-accent-rgb), 0.15);
+  outline: none;
+}
+.para-search::placeholder { color: var(--text-faint); }
+
+/* ============================== NAV ============================== */
+
+.para-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  flex-shrink: 0;
+}
+
+.para-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: var(--para-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all var(--para-transition);
+  white-space: nowrap;
+}
+.para-nav-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.para-nav-btn.is-active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+}
+.para-nav-icon {
+  display: flex;
+  align-items: center;
+}
+.para-nav-icon .svg-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* ============================== BODY ============================== */
+
+.para-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--para-gap);
+  scroll-behavior: smooth;
+}
+
+.para-body > h2 {
+  margin: 0 0 4px !important;
+  font-size: 1.6em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ============================== HERO ============================== */
+
+.para-hero {
+  padding: 32px 24px !important;
+  margin: 0 !important;
+  border-radius: var(--para-radius);
+  background: linear-gradient(135deg, var(--interactive-accent), var(--interactive-accent-hover, var(--interactive-accent)));
+  color: var(--text-on-accent) !important;
+  position: relative;
+  overflow: hidden;
+  display: block !important;
+  height: auto;
+  min-height: max-content;
+  box-shadow: var(--para-shadow);
+}
+
+.para-hero::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.para-hero-title {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 1.8em !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  color: var(--text-on-accent) !important;
+  position: relative;
+  z-index: 1;
+}
+
+.para-hero-sub {
+  margin: 8px 0 0 0 !important;
+  padding: 0 !important;
+  opacity: 0.92;
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+  color: var(--text-on-accent) !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================== UNIFIED METRICS BAR ============================== */
+
+.para-metrics-bar {
+  display: flex;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--para-radius);
+  overflow: hidden;
+  box-shadow: var(--para-shadow-sm);
+}
+
+.para-stat-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--background-modifier-border);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text-normal);
+  transition: background var(--para-transition);
+}
+.para-stat-card:last-child {
+  border-right: none;
+}
+.para-stat-card:hover {
+  background: var(--background-modifier-hover);
+}
+
+.para-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--para-radius-sm);
+  background: rgba(var(--para-accent-rgb), 0.1);
+  color: var(--interactive-accent);
+  flex-shrink: 0;
+}
+.para-stat-icon .svg-icon { width: 16px; height: 16px; }
+
+.para-stat-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.para-stat-value {
+  font-size: 1.4em;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-normal);
+}
+
+.para-stat-label {
+  font-size: 0.72em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ============================== SLEEK TOOLBAR ============================== */
+
+.para-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--para-radius);
+  box-shadow: var(--para-shadow-sm);
+}
+
+.para-toolbar-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--para-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--para-transition);
+}
+.para-toolbar-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.para-toolbar-btn.is-primary {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+.para-toolbar-btn.is-primary:hover {
+  background: var(--interactive-accent-hover, var(--interactive-accent));
+  color: var(--text-on-accent);
+}
+
+/* ============================== PREMIUM PANELS GRID ============================== */
+
+.para-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.para-panel {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--para-radius);
+  padding: 20px;
+  box-shadow: var(--para-shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+.para-panel > h3 {
+  margin: 0 0 16px !important;
+  font-size: 0.8em !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.para-panel-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--interactive-accent);
+}
+.para-panel-icon .svg-icon { width: 16px; height: 16px; }
+
+.para-recent {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--para-radius);
+  padding: 20px;
+  margin-top: 8px;
+}
+
+/* ============================== EMPTY STATE ============================== */
+
+.para-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 12px;
+  gap: 12px;
+  flex: 1;
+  justify-content: center;
+}
+.para-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--background-modifier-hover);
+  color: var(--text-muted);
+}
+.para-empty-icon .svg-icon { width: 24px; height: 24px; }
+.para-empty-msg {
+  margin: 0 !important;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 200px;
+}
+
+.para-empty {
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 6px 0 !important;
+  font-size: 13px;
+}
+
+/* ============================== BUTTONS ============================== */
+
+.para-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--para-radius-sm);
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  min-height: 34px;
+  height: auto;
+  transition: all var(--para-transition);
+  white-space: nowrap;
+}
+.para-btn:hover {
+  background: var(--background-modifier-hover);
+  border-color: var(--interactive-accent);
+}
+.para-btn:active {
+  transform: translateY(1px);
+}
+.para-btn-small {
+  padding: 5px 10px;
+  font-size: 12px;
+  min-height: 28px;
+}
+.para-btn-primary {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+}
+.para-btn-primary:hover {
+  background: var(--interactive-accent-hover, var(--interactive-accent));
+  color: var(--text-on-accent);
+  filter: brightness(1.05);
+}
+.para-btn-icon {
+  display: flex;
+  align-items: center;
+}
+.para-btn-icon .svg-icon { width: 14px; height: 14px; }
+
+/* ============================== ICON BUTTONS ============================== */
+
+.para-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: var(--para-radius-xs);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--para-transition);
+  flex-shrink: 0;
+}
+.para-icon-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+  border-color: var(--background-modifier-border);
+}
+.para-icon-btn .svg-icon { width: 15px; height: 15px; }
+
+/* ============================== TASK ROW ============================== */
+
+.para-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.para-task-row {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 12px 12px 18px;
+  border-radius: var(--para-radius);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  transition: all var(--para-transition);
+  height: auto;
+}
+.para-task-row:hover {
+  border-color: var(--background-modifier-border-hover, var(--interactive-accent));
+  box-shadow: var(--para-shadow-sm);
+}
+.para-task-row::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--para-prio-medium);
+}
+.para-task-row.para-priority-low::before { background: var(--para-prio-low); }
+.para-task-row.para-priority-medium::before { background: var(--para-prio-medium); }
+.para-task-row.para-priority-high::before { background: var(--para-prio-high); }
+
+.para-task-row.is-completed {
+  opacity: 0.72;
+}
+.para-task-row.is-completed .para-task-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.para-check-wrap {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.para-check {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--interactive-accent);
+  margin: 0;
+}
+
+.para-task-main {
+  flex: 1;
+  min-width: 0;
+}
+.para-task-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  word-wrap: break-word;
+  line-height: 1.3;
+}
+.para-task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.para-task-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* ============================== PILLS ============================== */
+
+.para-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--para-radius-pill);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.2;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.para-pill-icon { display: flex; }
+.para-pill-icon .svg-icon { width: 11px; height: 11px; }
+
+.para-pill-warn {
+  background: rgba(var(--para-prio-high-rgb), 0.12);
+  border-color: rgba(var(--para-prio-high-rgb), 0.3);
+  color: var(--text-normal);
+}
+
+.para-pill-date {
+  background: rgba(var(--para-accent-rgb), 0.10);
+  border-color: rgba(var(--para-accent-rgb), 0.25);
+}
+
+/* ============================== CARDS ============================== */
+
+.para-card {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--para-radius);
+  padding: 16px;
+  transition: all var(--para-transition);
+  box-shadow: var(--para-shadow-sm);
+}
+.para-card:hover {
+  border-color: var(--background-modifier-border-hover, var(--interactive-accent));
+  box-shadow: var(--para-shadow);
+}
+.para-card h3 {
+  margin: 0 0 6px !important;
+  font-size: 16px;
+  font-weight: 600;
+}
+.para-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.para-card-head h3 { margin: 0 !important; }
+
+/* ============================== PROGRESS ============================== */
+
+.para-progress {
+  position: relative;
+  height: 8px;
+  background: var(--background-modifier-border);
+  border-radius: var(--para-radius-pill);
+  overflow: hidden;
+  margin: 10px 0 6px;
+}
+.para-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--interactive-accent), var(--interactive-accent-hover, var(--interactive-accent)));
+  width: 0;
+  border-radius: var(--para-radius-pill);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================== ROWS ============================== */
+
+.para-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.para-mini-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--background-modifier-border);
+  font-size: 13px;
+}
+.para-mini-row:last-child {
+  border-bottom: none;
+}
+
+.para-muted {
+  color: var(--text-muted);
+  margin: 4px 0 !important;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ============================== TABS ============================== */
+
+.para-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+}
+.para-tab {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--para-radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all var(--para-transition);
+  height: auto;
+}
+.para-tab:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.para-tab.is-active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* ============================== INLINE ADD ============================== */
+
+.para-inline-add {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0;
+}
+.para-inline-add .para-input {
+  flex: 1;
+}
+
+/* ============================== INPUTS ============================== */
+
+.para-input,
+.para-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--para-radius-sm);
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color var(--para-transition), box-shadow var(--para-transition);
+  height: auto;
+}
+.para-input:focus,
+.para-textarea:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 3px rgba(var(--para-accent-rgb), 0.15);
+  outline: none;
+}
+.para-textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+.para-label {
+  display: block;
+  margin: 14px 0 5px !important;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.para-label:first-of-type {
+  margin-top: 4px !important;
+}
+
+/* ============================== MODAL ============================== */
+
+.para-modal h2 {
+  margin: 0 0 4px !important;
+  font-size: 1.4em;
+  font-weight: 700;
+}
+.para-modal > p {
+  margin: 0 0 12px !important;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.para-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+/* ============================== REVIEW ============================== */
+
+.para-review-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+}
+.para-review-row .para-check {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.para-review-info {
+  flex: 1;
+  min-width: 0;
+}
+.para-review-info strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.para-review-info p {
+  margin: 0 !important;
+  font-size: 12px;
+}
+
+/* ============================== SEARCH RESULT ============================== */
+
+.para-search-result .para-card-head {
+  margin-bottom: 10px;
+}
+
+/* ============================== ERROR ============================== */
+
+.para-error {
+  color: var(--text-normal);
+  background: rgba(var(--para-prio-high-rgb), 0.12);
+  border: 1px solid rgba(var(--para-prio-high-rgb), 0.3);
+  padding: 12px;
+  border-radius: var(--para-radius-sm);
+  font-size: 13px;
+}
+
+/* ============================== ONBOARDING ============================== */
+
+.para-onboarding-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 16px;
+}
+.para-onboarding-card {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90%;
+  overflow-y: auto;
+  box-shadow: var(--para-shadow-lg);
+}
+.para-onboarding-card h1 {
+  margin: 0 0 6px !important;
+  font-size: 1.6em;
+  font-weight: 700;
+}
+.para-onboarding-card > p {
+  color: var(--text-muted);
+  margin: 0 0 16px !important;
+  font-size: 14px;
+}
+
+.para-onboarding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+}
+.para-onboarding-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--para-radius-sm);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+}
+.para-onboarding-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--para-radius-sm);
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  flex-shrink: 0;
+}
+.para-onboarding-icon .svg-icon { width: 16px; height: 16px; }
+.para-onboarding-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.para-onboarding-text strong { font-size: 14px; }
+.para-onboarding-text span { font-size: 12px; color: var(--text-muted); }
+
+.para-onboarding-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.para-onboarding-sample {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+.para-onboarding-sample p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 8px !important;
+}
+
+/* ============================== RESPONSIVE ============================== */
+
+@media (max-width: 600px) {
+  .para-header { padding: 12px 12px 8px; }
+  .para-body { padding: 16px; }
+  .para-nav { padding: 6px 8px; }
+  .para-nav-label { display: none; }
+  .para-nav-btn { padding: 6px 8px; }
+  .para-metrics-bar { flex-direction: column; }
+  .para-stat-card { border-right: none; border-bottom: 1px solid var(--background-modifier-border); }
+  .para-stat-card:last-child { border-bottom: none; }
+  .para-toolbar { flex-direction: column; }
+  .para-hero { padding: 24px 20px !important; }
+  .para-hero-title { font-size: 1.5em !important; }
+}
+
+/* ============================== SCROLLBAR ============================== */
+
+.para-body::-webkit-scrollbar { width: 8px; }
+.para-body::-webkit-scrollbar-track { background: transparent; }
+.para-body::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+}
+.para-body::-webkit-scrollbar-thumb:hover {
+  background: var(--background-modifier-border-hover, var(--text-faint));
+}
