@@ -1,6 +1,6 @@
 /* ============================================================
    PARA Hub — Complete Obsidian plugin
-   Version 1.0.3 — Stability & safety release
+   Version 1.0.5 — Stability, safety & formal German
    ============================================================ */
 
 const { Plugin, ItemView, Modal, Setting, PluginSettingTab, Notice, normalizePath, setIcon, Menu } = require('obsidian');
@@ -81,7 +81,10 @@ const TRANSLATIONS = {
     msg_saved: 'Saved', msg_archived: 'Archived', msg_restored: 'Restored', msg_deleted: 'Deleted successfully', msg_proj_comp: 'Project completed', msg_backup: 'Backup saved to your Archive folder', msg_sample_add: 'Sample content added', msg_sample_rem: 'Removed',
     opt_none: '— None —', opt_low: 'Low', opt_med: 'Medium', opt_high: 'High', opt_open: 'Open', opt_comp: 'Completed', opt_blocked: 'Blocked', opt_active: 'Active', opt_inactive: 'Inactive',
     date_unknown: 'Unknown',
-    kind_task: 'Task', kind_project: 'Project', kind_inbox: 'Inbox', proj_not_found: 'Project not found.', area_not_found: 'Area not found.', no_project: '(no project)', btn_clear: 'Clear'
+    kind_task: 'Task', kind_project: 'Project', kind_inbox: 'Inbox', proj_not_found: 'Project not found.', area_not_found: 'Area not found.', no_project: '(no project)', btn_clear: 'Clear',
+    kind_area: 'Area', kind_resource: 'Resource', ph_short_title: 'Short title', ph_details: 'Details you want to remember', ph_category: 'e.g. Idea, To Read', ph_tasks: 'One task per line', err_open_panel: 'Could not open PARA Hub panel.',
+    cmd_open: 'Open PARA Hub', cmd_capture: 'Quick Capture', cmd_task: 'Add Task', cmd_proj: 'New Project', cmd_review: 'Open Weekly Review',
+    smp_task1: 'Sample: Read about PARA', smp_task2: 'Sample: Plan next week', smp_proj: 'Sample: Set up my PARA system', smp_outcome: 'A working PARA setup', smp_area: 'Sample: Health', smp_res: 'Sample: Article on PARA', smp_cat: 'Productivity', smp_inbox: 'Sample: Idea for later'
   },
   de: {
     nav_home: 'Startseite', nav_today: 'Heute', nav_inbox: 'Eingang', nav_tasks: 'Aufgaben', nav_projects: 'Projekte', nav_areas: 'Bereiche', nav_resources: 'Ressourcen', nav_archives: 'Archiv', nav_review: 'Wochenrückblick', nav_settings: 'Einstellungen & Hilfe',
@@ -96,14 +99,14 @@ const TRANSLATIONS = {
     panel_recent: 'Kürzlich hinzugefügt', panel_recent_empty: 'Noch nichts vorhanden. Fügen Sie Ihre erste Aufgabe hinzu oder erfassen Sie eine kurze Notiz.',
     panel_summary: 'Fortschrittsübersicht', sum_tasks: 'Abgeschlossene Aufgaben:', sum_proj: 'Aktive Projekte:', sum_inbox: 'Elemente im Eingang:',
     btn_add_task: 'Aufgabe hinzufügen', btn_capture: 'Schnellerfassung', btn_new_proj: 'Neues Projekt', btn_new_area: 'Neuer Bereich', btn_new_res: 'Neue Ressource', btn_back: 'Zurück',
-    btn_open: 'Öffnen', btn_edit: 'Bearbeiten', btn_archive: 'Archivieren', btn_restore: 'Wiederherstellen', btn_assign: 'Zuweisen', btn_more: 'Weitere Optionen', btn_actions: 'Aktionen', btn_go: 'Los', btn_reset: 'Fortschritt zurücksetzen',
+    btn_open: 'Öffnen', btn_edit: 'Bearbeiten', btn_archive: 'Archivieren', btn_restore: 'Wiederherstellen', btn_assign: 'Zuweisen', btn_more: 'Weitere Optionen', btn_actions: 'Aktionen', btn_go: 'Aufrufen', btn_reset: 'Fortschritt zurücksetzen',
     btn_delete: 'Löschen', mod_del_title: 'Dauerhaft löschen', mod_del_desc: 'Sind Sie sicher, dass Sie dieses Element dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.', btn_confirm_del: 'Dauerhaft löschen',
     tab_today: 'Heute', tab_over: 'Überfällig', tab_up: 'Anstehend', tab_high: 'Hohe Priorität', tab_open: 'Alle offenen', tab_comp: 'Abgeschlossen', tab_proj: 'Nach Projekt',
     empty_tasks: 'Keine Aufgaben gefunden.', empty_inbox: 'Ihr Eingang ist leer. Verwenden Sie die Schnellerfassung, wenn Ihnen etwas einfällt.',
-    empty_proj: 'Noch keine Projekte. Ein Projekt ist alles, was ein Ziel hat.', empty_area: 'Noch keine Bereiche. Ein Bereich ist etwas, das Sie pflegen, wie Gesundheit oder Finanzen.',
+    empty_proj: 'Noch keine Projekte. Ein Projekt ist alles, was einen klaren Abschluss hat.', empty_area: 'Noch keine Bereiche. Ein Bereich ist etwas, das Sie pflegen, wie Gesundheit oder Finanzen.',
     empty_res: 'Noch keine Ressourcen. Ressourcen sind Dinge, die Sie als Referenz aufbewahren möchten.', empty_arch: 'Nichts ist archiviert.',
-    task_no_tasks: 'Keine Aufgaben in dieser Ansicht.', task_showing: 'Zeige die ersten 100 Aufgaben. Verwenden Sie die Suche, um andere zu finden.',
-    task_mark_inc: 'Aufgabe als unerledigt markieren', task_mark_comp: 'Aufgabe als erledigt markieren', task_missing: 'Fehlend:',
+    task_no_tasks: 'Keine Aufgaben in dieser Ansicht.', task_showing: 'Es werden die ersten 100 Einträge angezeigt. Verwenden Sie die Suche, um weitere zu finden.',
+    task_mark_inc: 'Aufgabe als unerledigt markieren', task_mark_comp: 'Aufgabe als erledigt markieren', task_missing: 'Nicht gefunden:',
     inbox_cat: 'Kategorie:', inbox_archived: 'Archiviert', inbox_updated: 'Eingangselement aktualisiert',
     proj_blocked: 'Blockiert', proj_over: 'Überfällig', proj_soon: 'Bald fällig', proj_inactive: 'Inaktiv', proj_no_prog: 'Fortschritt noch nicht verfügbar', proj_tasks_done: 'Aufgaben abgeschlossen',
     proj_outcome: 'Ergebnis:', proj_desc: 'Beschreibung:', proj_status: 'Status:', proj_prio: 'Priorität:', proj_deadline: 'Frist:', proj_area: 'Bereich:', proj_area_missing: 'Verknüpfter Bereich fehlt:',
@@ -113,18 +116,18 @@ const TRANSLATIONS = {
     res_link: 'Link:', res_cat: 'Kategorie:',
     arch_desc: 'Hier wird nichts gelöscht. Stellen Sie alles mit einem Klick wieder her.', arch_type: 'Typ:',
     rev_desc: 'Eine geführte Checkliste, die Ihnen hilft, zu reflektieren und zu planen.',
-    rev_1: 'Eingang überprüfen', rev_1_h: 'Sortieren Sie den Eingang oder lassen Sie ihn unverändert.',
+    rev_1: 'Eingang überprüfen', rev_1_h: 'Sortieren Sie Ihren Eingang oder lassen Sie Einträge dort liegen.',
     rev_2: 'Überfällige Aufgaben erledigen', rev_2_h: 'Schließen Sie überfällige Aufgaben ab, verschieben Sie sie oder archivieren Sie sie.',
     rev_3: 'Anstehende Fristen prüfen', rev_3_h: 'Sehen Sie sich an, was in den nächsten zwei Wochen fällig ist.',
     rev_4: 'Aktive Projekte überprüfen', rev_4_h: 'Öffnen Sie jedes aktive Projekt und prüfen Sie den Status.',
-    rev_5: 'Blockierte/vernachlässigte Projekte ansehen', rev_5_h: 'Markieren Sie alles, was ins Stocken geraten ist.',
-    rev_6: 'Prioritäten aktualisieren', rev_6_h: 'Erhöhen oder senken Sie die Priorität, was diese Woche am wichtigsten ist.',
-    rev_7: 'Abgeschlossene Projekte abschließen oder archivieren', rev_7_h: 'Wenn ein Projekt fertig ist, markieren Sie es als abgeschlossen oder archivieren Sie es.',
+    rev_5: 'Blockierte oder vernachlässigte Projekte prüfen', rev_5_h: 'Markieren Sie alles, was ins Stocken geraten ist.',
+    rev_6: 'Prioritäten aktualisieren', rev_6_h: 'Erhöhen oder senken Sie die Priorität dessen, was diese Woche am wichtigsten ist.',
+    rev_7: 'Fertige Projekte abschließen oder archivieren', rev_7_h: 'Wenn ein Projekt fertig ist, markieren Sie es als abgeschlossen oder archivieren Sie es.',
     rev_8: 'Nächste Schritte definieren', rev_8_h: 'Fügen Sie für jedes aktive Projekt mindestens eine nächste Aufgabe hinzu.',
     rev_9: 'Für die Woche vorbereiten', rev_9_h: 'Notieren Sie Ihre drei wichtigsten Prioritäten.',
     search_results: 'Suchergebnisse', search_empty: 'Geben Sie etwas in das Suchfeld oben ein.', search_none: 'Keine Treffer für', search_open: 'Notiz öffnen',
-    set_para: 'Was ist PARA?', set_para_desc: 'PARA ist eine Methode, um alles in Ihrem Leben in fünf Kategorien zu organisieren: Projekte (Ziele, die abgeschlossen werden müssen), Bereiche (laufende Verantwortlichkeiten), Ressourcen (Referenzmaterial), Archiv (inaktive Dinge, die niemals gelöscht werden) und Eingang (vorübergehender Speicherort).',
-    set_actions: 'Häufige Aktionen', set_a1: 'Aufgabe hinzufügen: Klicken Sie auf "Aufgabe hinzufügen" auf dem Startbildschirm.', set_a2: 'Gedanken erfassen: Klicken Sie auf "Schnellerfassung" auf dem Startbildschirm.', set_a3: 'Projekt starten: Klicken Sie auf "Neues Projekt".', set_a4: 'Wochenrückblick: Klicken Sie auf "Wochenrückblick" und haken Sie jeden Schritt ab.', set_a5: 'Sichern: Klicken Sie unten auf "Jetzt sichern".',
+    set_para: 'Was ist PARA?', set_para_desc: 'PARA ist eine Methode, um alles in Ihrem Leben in fünf Kategorien zu organisieren: Projekte (Vorhaben mit klarem Abschluss), Bereiche (laufende Verantwortlichkeiten), Ressourcen (Referenzmaterial), Archiv (inaktive Dinge, die niemals gelöscht werden) und Eingang (vorübergehende Ablage).',
+    set_actions: 'Häufige Aktionen', set_a1: 'Aufgabe hinzufügen: Klicken Sie auf der Startseite auf "Aufgabe hinzufügen".', set_a2: 'Gedanken erfassen: Klicken Sie auf der Startseite auf "Schnellerfassung" oder verwenden Sie die Befehlspalette.', set_a3: 'Projekt starten: Klicken Sie auf "Neues Projekt".', set_a4: 'Wochenrückblick: Klicken Sie auf "Wochenrückblick" und haken Sie jeden Schritt ab.', set_a5: 'Sichern: Klicken Sie unten auf "Jetzt sichern".',
     set_tools: 'Werkzeuge', set_backup: 'Jetzt sichern', set_reset: 'Willkommensbildschirm erneut anzeigen', set_remove: 'Beispielinhalte entfernen',
     set_title: 'PARA Hub Einstellungen', set_desc: 'Diese Einstellungen legen fest, wo Ihre Notizen gespeichert werden. Das Ändern eines Ordnernamens verschiebt Ihre vorhandenen Notizen nicht; es ändert nur, wo neue Notizen gespeichert werden.',
     set_lang: 'Sprache', set_lang_desc: 'Wählen Sie die Sprache für die Benutzeroberfläche.',
@@ -132,8 +135,8 @@ const TRANSLATIONS = {
     set_show_again: 'Willkommensbildschirm erneut anzeigen', set_show_desc: 'Schaltet den ersten Willkommensbildschirm wieder ein.', set_show_btn: 'Erneut anzeigen',
     set_backup_title: 'Sichern Sie Ihre PARA-Daten', set_backup_desc: 'Schreibt eine datierte Kopie Ihrer PARA-Notizen in Ihren Archivordner. Dies ist eine lesbare Kopie, kein vollständiges Vault-Backup.',
     onb_title: 'Willkommen bei PARA Hub', onb_sub: 'Eine einfache Möglichkeit, alles in Ihrem Vault zu organisieren.',
-    onb_p: 'Projekte', onb_pd: 'Ziele, die abgeschlossen werden müssen', onb_a: 'Bereiche', onb_ad: 'laufende Verantwortlichkeiten', onb_r: 'Ressourcen', onb_rd: 'Referenzmaterial', onb_ar: 'Archiv', onb_ard: 'inaktive Dinge (niemals gelöscht)', onb_i: 'Eingang', onb_id: 'vorübergehender Speicherort',
-    onb_t_btn: 'Erstellen Sie Ihre erste Aufgabe', onb_p_btn: 'Erstellen Sie Ihr erstes Projekt', onb_skip: 'Überspringen', onb_sample: 'Nicht sicher, wo Sie anfangen sollen? Fügen Sie einige Beispielaufgaben hinzu (mit "Sample:" gekennzeichnet) — Sie können sie mit einem Klick entfernen.', onb_add_sample: 'Beispielinhalte hinzufügen',
+    onb_p: 'Projekte', onb_pd: 'Vorhaben mit klarem Abschluss', onb_a: 'Bereiche', onb_ad: 'laufende Verantwortlichkeiten', onb_r: 'Ressourcen', onb_rd: 'Referenzmaterial', onb_ar: 'Archiv', onb_ard: 'inaktive Dinge (niemals gelöscht)', onb_i: 'Eingang', onb_id: 'vorübergehende Ablage',
+    onb_t_btn: 'Erstellen Sie Ihre erste Aufgabe', onb_p_btn: 'Erstellen Sie Ihr erstes Projekt', onb_skip: 'Überspringen', onb_sample: 'Sie wissen nicht, wo Sie anfangen sollen? Fügen Sie einige Beispieleinträge hinzu (mit "Beispiel:" gekennzeichnet) – Sie können diese mit einem Klick wieder entfernen.', onb_add_sample: 'Beispielinhalte hinzufügen',
     mod_cap: 'Schnellerfassung', mod_cap_desc: 'Alles, was Sie hier eingeben, landet in Ihrem Eingang. Sie können es später sortieren.',
     mod_title_req: 'Titel (erforderlich)', mod_content: 'Inhalt (optional)', mod_cat: 'Kategorie (optional)', mod_save_inbox: 'Im Eingang speichern', mod_cancel: 'Abbrechen',
     mod_task: 'Aufgabe hinzufügen', mod_edit_task: 'Aufgabe bearbeiten', mod_desc: 'Beschreibung (optional)', mod_due: 'Fälligkeitsdatum (optional)', mod_prio: 'Priorität', mod_status: 'Status', mod_proj: 'Zugehöriges Projekt (optional)', mod_area: 'Zugehöriger Bereich (optional)', mod_notes: 'Notizen (optional)', mod_save_task: 'Aufgabe speichern',
@@ -141,11 +144,14 @@ const TRANSLATIONS = {
     mod_new_area: 'Neuer Bereich', mod_edit_area: 'Bereich bearbeiten', mod_save_area: 'Bereich speichern',
     mod_new_res: 'Neue Ressource', mod_edit_res: 'Ressource bearbeiten', mod_link: 'Link (optional)', mod_save_res: 'Ressource speichern',
     mod_assign: 'Eingangselement zuweisen', mod_assign_desc: 'Verknüpfen Sie dieses Element mit einem Projekt, Bereich oder einer Ressource — oder senden Sie es ins Archiv.', mod_dest: 'Wählen Sie ein Ziel', mod_leave: '— Im Eingang lassen —', mod_do_assign: 'Zuweisen',
-    err_title: 'Bitte geben Sie einen Titel ein', err_name: 'Bitte geben Sie einen Namen ein', err_save: 'Konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.', err_update: 'Konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.', err_arch: 'Konnte nicht archiviert werden. Bitte versuchen Sie es erneut.', err_restore: 'Konnte nicht wiederhergestellt werden. Bitte versuchen Sie es erneut.', err_backup: 'Sicherung fehlgeschlagen. Bitte versuchen Sie es erneut.',
-    msg_saved: 'Gespeichert', msg_archived: 'Archiviert', msg_restored: 'Wiederhergestellt', msg_deleted: 'Erfolgreich gelöscht', msg_proj_comp: 'Projekt abgeschlossen', msg_backup: 'Sicherung im Archivordner gespeichert', msg_sample_add: 'Beispielinhalte hinzugefügt', msg_sample_rem: 'Entfernt',
+    err_title: 'Bitte geben Sie einen Titel ein', err_name: 'Bitte geben Sie einen Namen ein', err_save: 'Das Speichern ist fehlgeschlagen. Bitte versuchen Sie es erneut.', err_update: 'Die Aktualisierung ist fehlgeschlagen. Bitte versuchen Sie es erneut.', err_arch: 'Die Archivierung ist fehlgeschlagen. Bitte versuchen Sie es erneut.', err_restore: 'Die Wiederherstellung ist fehlgeschlagen. Bitte versuchen Sie es erneut.', err_backup: 'Die Sicherung ist fehlgeschlagen. Bitte versuchen Sie es erneut.',
+    msg_saved: 'Gespeichert', msg_archived: 'Archiviert', msg_restored: 'Wiederhergestellt', msg_deleted: 'Erfolgreich gelöscht', msg_proj_comp: 'Projekt abgeschlossen', msg_backup: 'Sicherung im Archivordner gespeichert', msg_sample_add: 'Beispielinhalte hinzugefügt', msg_sample_rem: 'Entfernt:',
     opt_none: '— Keine —', opt_low: 'Niedrig', opt_med: 'Mittel', opt_high: 'Hoch', opt_open: 'Offen', opt_comp: 'Abgeschlossen', opt_blocked: 'Blockiert', opt_active: 'Aktiv', opt_inactive: 'Inaktiv',
     date_unknown: 'Unbekannt',
-    kind_task: 'Aufgabe', kind_project: 'Projekt', kind_inbox: 'Eingang', proj_not_found: 'Projekt nicht gefunden.', area_not_found: 'Bereich nicht gefunden.', no_project: '(kein Projekt)', btn_clear: 'Leeren'
+    kind_task: 'Aufgabe', kind_project: 'Projekt', kind_inbox: 'Eingang', proj_not_found: 'Projekt nicht gefunden.', area_not_found: 'Bereich nicht gefunden.', no_project: '(kein Projekt)', btn_clear: 'Leeren',
+    kind_area: 'Bereich', kind_resource: 'Ressource', ph_short_title: 'Kurzer Titel', ph_details: 'Details, die Sie sich merken möchten', ph_category: 'z. B. Idee, Zum Lesen', ph_tasks: 'Eine Aufgabe pro Zeile', err_open_panel: 'Der PARA-Hub-Bereich konnte nicht geöffnet werden.',
+    cmd_open: 'PARA Hub öffnen', cmd_capture: 'Schnellerfassung', cmd_task: 'Aufgabe hinzufügen', cmd_proj: 'Neues Projekt', cmd_review: 'Wochenrückblick öffnen',
+    smp_task1: 'Beispiel: Über PARA lesen', smp_task2: 'Beispiel: Nächste Woche planen', smp_proj: 'Beispiel: Mein PARA-System einrichten', smp_outcome: 'Ein funktionierendes PARA-System', smp_area: 'Beispiel: Gesundheit', smp_res: 'Beispiel: Artikel über PARA', smp_cat: 'Produktivität', smp_inbox: 'Beispiel: Idee für später'
   }
 };
 
@@ -345,13 +351,13 @@ class QuickCaptureModal extends Modal {
     contentEl.createEl('p', { text: this.plugin.t('mod_cap_desc') });
 
     contentEl.createEl('label', { text: this.plugin.t('mod_title_req') }).addClass('para-label');
-    this.titleInput = contentEl.createEl('input', { type: 'text', cls: 'para-input', placeholder: 'Short title' });
+    this.titleInput = contentEl.createEl('input', { type: 'text', cls: 'para-input', placeholder: this.plugin.t('ph_short_title') });
 
     contentEl.createEl('label', { text: this.plugin.t('mod_content') }).addClass('para-label');
-    this.contentInput = contentEl.createEl('textarea', { cls: 'para-textarea', placeholder: 'Details you want to remember' });
+    this.contentInput = contentEl.createEl('textarea', { cls: 'para-textarea', placeholder: this.plugin.t('ph_details') });
 
     contentEl.createEl('label', { text: this.plugin.t('mod_cat') }).addClass('para-label');
-    this.categoryInput = contentEl.createEl('input', { type: 'text', cls: 'para-input', placeholder: 'e.g. Idea, To Read' });
+    this.categoryInput = contentEl.createEl('input', { type: 'text', cls: 'para-input', placeholder: this.plugin.t('ph_category') });
 
     const row = contentEl.createDiv({ cls: 'para-modal-actions' });
     const cancel = row.createEl('button', { text: this.plugin.t('mod_cancel'), cls: 'para-btn' });
@@ -559,7 +565,7 @@ class ProjectModal extends Modal {
 
     if (!this.existing) {
       contentEl.createEl('label', { text: this.plugin.t('mod_init_tasks') }).addClass('para-label');
-      this.initialTasksInput = contentEl.createEl('textarea', { cls: 'para-textarea', placeholder: 'One task per line' });
+      this.initialTasksInput = contentEl.createEl('textarea', { cls: 'para-textarea', placeholder: this.plugin.t('ph_tasks') });
     } else {
       this.initialTasksInput = null;
     }
@@ -1129,7 +1135,7 @@ class ParaHubView extends ItemView {
     for (const t of tasks.slice(0, 6)) {
       const row = panel.createDiv({ cls: 'para-mini-row' });
       row.createEl('span', { text: t.fm.title || t.file.basename });
-      if (t.fm.due) row.createEl('span', { cls: 'para-muted', text: t.fm.due });
+      if (t.fm.due) row.createEl('span', { cls: 'para-muted', text: this.plugin.fmtDate(t.fm.due) });
     }
   }
 
@@ -1143,7 +1149,7 @@ class ParaHubView extends ItemView {
     for (const p of projects.slice(0, 6)) {
       const row = panel.createDiv({ cls: 'para-mini-row' });
       row.createEl('span', { text: p.fm.title || p.file.basename });
-      if (p.fm.deadline) row.createEl('span', { cls: 'para-muted', text: p.fm.deadline });
+      if (p.fm.deadline) row.createEl('span', { cls: 'para-muted', text: this.plugin.fmtDate(p.fm.deadline) });
     }
   }
 
@@ -1259,13 +1265,13 @@ class ParaHubView extends ItemView {
       const pill = meta.createSpan({ cls: 'para-pill para-pill-date' });
       const pic = pill.createSpan({ cls: 'para-pill-icon' });
       setIcon(pic, 'calendar');
-      pill.createSpan({ text: note.fm.due });
+      pill.createSpan({ text: this.plugin.fmtDate(note.fm.due) });
     }
     if (note.fm.priority) {
       const pill = meta.createSpan({ cls: 'para-pill' });
       const pic = pill.createSpan({ cls: 'para-pill-icon' });
       setIcon(pic, 'flag');
-      pill.createSpan({ text: note.fm.priority });
+      pill.createSpan({ text: this.plugin.fmtValue('priority', note.fm.priority) });
     }
     
     if (note.fm.project) {
@@ -1472,9 +1478,9 @@ class ParaHubView extends ItemView {
     const info = body.createDiv({ cls: 'para-panel' });
     if (project.fm.outcome) info.createEl('p', { text: this.plugin.t('proj_outcome') + ' ' + project.fm.outcome });
     if (project.fm.description) info.createEl('p', { text: this.plugin.t('proj_desc') + ' ' + project.fm.description });
-    if (project.fm.status) info.createEl('p', { text: this.plugin.t('proj_status') + ' ' + project.fm.status });
-    if (project.fm.priority) info.createEl('p', { text: this.plugin.t('proj_prio') + ' ' + project.fm.priority });
-    if (project.fm.deadline) info.createEl('p', { text: this.plugin.t('proj_deadline') + ' ' + project.fm.deadline });
+    if (project.fm.status) info.createEl('p', { text: this.plugin.t('proj_status') + ' ' + this.plugin.fmtValue('status', project.fm.status) });
+    if (project.fm.priority) info.createEl('p', { text: this.plugin.t('proj_prio') + ' ' + this.plugin.fmtValue('priority', project.fm.priority) });
+    if (project.fm.deadline) info.createEl('p', { text: this.plugin.t('proj_deadline') + ' ' + this.plugin.fmtDate(project.fm.deadline) });
     if (project.fm.area) {
       const exists = await this.plugin.noteExists(project.fm.area, 'areas');
       info.createEl('p', { text: exists ? (this.plugin.t('proj_area') + ' ' + project.fm.area) : (this.plugin.t('proj_area_missing') + ' ' + project.fm.area) });
@@ -1712,7 +1718,7 @@ class ParaHubView extends ItemView {
     for (const n of displayed) {
       const card = list.createDiv({ cls: 'para-card' });
       card.createEl('h3', { text: n.fm.title || n.file.basename });
-      card.createEl('p', { cls: 'para-muted', text: this.plugin.t('arch_type') + ' ' + (n.fm['para-type'] || n.folderKey) });
+      card.createEl('p', { cls: 'para-muted', text: this.plugin.t('arch_type') + ' ' + this.plugin.fmtValue('type', n.fm['para-type'] || n.folderKey) });
       const actions = card.createDiv({ cls: 'para-row' });
       
       const restoreBtn = actions.createEl('button', { cls: 'para-btn para-btn-small para-btn-primary' });
@@ -1984,13 +1990,13 @@ class ParaHubPlugin extends Plugin {
     try { await this.ensureFolders(); } catch (e) { console.error(e); }
 
     this.registerView(VIEW_TYPE, (leaf) => new ParaHubView(leaf, this));
-    this.addRibbonIcon('layout-dashboard', 'Open PARA Hub', () => this.activateView());
+    this.addRibbonIcon('layout-dashboard', this.t('cmd_open'), () => this.activateView());
 
-    this.addCommand({ id: 'open-para-hub', name: 'Open PARA Hub', callback: () => this.activateView() });
-    this.addCommand({ id: 'quick-capture', name: 'Quick Capture', callback: () => new QuickCaptureModal(this.app, this).open() });
-    this.addCommand({ id: 'add-task', name: 'Add Task', callback: () => new TaskModal(this.app, this).open() });
-    this.addCommand({ id: 'new-project', name: 'New Project', callback: () => new ProjectModal(this.app, this).open() });
-    this.addCommand({ id: 'weekly-review', name: 'Open Weekly Review', callback: () => {
+    this.addCommand({ id: 'open-para-hub', name: this.t('cmd_open'), callback: () => this.activateView() });
+    this.addCommand({ id: 'quick-capture', name: this.t('cmd_capture'), callback: () => new QuickCaptureModal(this.app, this).open() });
+    this.addCommand({ id: 'add-task', name: this.t('cmd_task'), callback: () => new TaskModal(this.app, this).open() });
+    this.addCommand({ id: 'new-project', name: this.t('cmd_proj'), callback: () => new ProjectModal(this.app, this).open() });
+    this.addCommand({ id: 'weekly-review', name: this.t('cmd_review'), callback: () => {
       this.state.screen = 'review';
       this.state.params = {};
       this.refreshAll();
@@ -2190,7 +2196,7 @@ class ParaHubPlugin extends Plugin {
     if (!leaf) {
       leaf = workspace.getLeaf('tab');
       if (!leaf) {
-        new Notice('Could not open PARA Hub panel.');
+        new Notice(this.t('err_open_panel'));
         return;
       }
       await leaf.setViewState({ type: VIEW_TYPE, active: true });
@@ -2212,6 +2218,24 @@ class ParaHubPlugin extends Plugin {
   async getTasksForProject(projectName) {
     const tasks = await this.getNotes('tasks');
     return tasks.filter(t => !t.fm.archived && t.fm.project === projectName);
+  }
+
+  // Date shown to the user: 22.10.2026 in German, 2026-10-22 in English. (Stored files always keep 2026-10-22.)
+  fmtDate(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (m && this.data.language === 'de') return m[3] + '.' + m[2] + '.' + m[1];
+    return iso;
+  }
+
+  // Translates stored values such as priority "high" or status "active" for display.
+  fmtValue(kind, value) {
+    const maps = {
+      priority: { low: 'opt_low', medium: 'opt_med', high: 'opt_high' },
+      status: { open: 'opt_open', completed: 'opt_comp', blocked: 'opt_blocked', active: 'opt_active', inactive: 'opt_inactive' },
+      type: { task: 'kind_task', project: 'kind_project', inbox: 'kind_inbox', area: 'kind_area', resource: 'kind_resource' },
+    };
+    const key = maps[kind] && maps[kind][String(value).toLowerCase()];
+    return key ? this.t(key) : value;
   }
 
   noteExistsSync(name, typeKey) {
@@ -2389,12 +2413,12 @@ class ParaHubPlugin extends Plugin {
     await this.saveData(this.data);
 
     const samples = [
-      { folder: 'tasks', title: 'Sample: Read about PARA', fm: { priority: 'medium', status: 'open' } },
-      { folder: 'tasks', title: 'Sample: Plan next week', fm: { priority: 'high', status: 'open', due: todayISO() } },
-      { folder: 'projects', title: 'Sample: Set up my PARA system', fm: { status: 'active', priority: 'high', outcome: 'A working PARA setup' } },
-      { folder: 'areas', title: 'Sample: Health', fm: {} },
-      { folder: 'resources', title: 'Sample: Article on PARA', fm: { category: 'Productivity' } },
-      { folder: 'inbox', title: 'Sample: Idea for later', fm: {} },
+      { folder: 'tasks', title: this.t('smp_task1'), fm: { priority: 'medium', status: 'open' } },
+      { folder: 'tasks', title: this.t('smp_task2'), fm: { priority: 'high', status: 'open', due: todayISO() } },
+      { folder: 'projects', title: this.t('smp_proj'), fm: { status: 'active', priority: 'high', outcome: this.t('smp_outcome') } },
+      { folder: 'areas', title: this.t('smp_area'), fm: {} },
+      { folder: 'resources', title: this.t('smp_res'), fm: { category: this.t('smp_cat') } },
+      { folder: 'inbox', title: this.t('smp_inbox'), fm: {} },
     ];
     for (const s of samples) {
       const fm = {

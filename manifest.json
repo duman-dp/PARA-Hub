@@ -1,7 +1,7 @@
 {
   "id": "para-hub",
   "name": "PARA Hub",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "minAppVersion": "1.0.0",
   "description": "A complete, fast, and bilingual PARA productivity app inside Obsidian.",
   "author": "Daniel Jafari",
